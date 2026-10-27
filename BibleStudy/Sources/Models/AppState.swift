@@ -38,6 +38,8 @@ public final class AppState: ObservableObject {
     @Published public var selectedBook: BibleBook
     @Published public var selectedChapter: Int = 1
     @Published public var highlightedVerseNumber: Int? = nil
+    @Published public var selectedVerseNumbers: Set<Int> = []
+    public var selectionAnchorVerse: Int? = nil
 
     @Published public var activeVersions: [String] = ["RVR1960", "NTV"]
     public let availableVersions: [String] = ["RVR1960", "NTV", "TLA", "NVI"]
@@ -80,9 +82,12 @@ public final class AppState: ObservableObject {
             self.selectedBook = juan
             self.selectedChapter = 3
             self.highlightedVerseNumber = 16
+            self.selectedVerseNumbers = [16]
+            self.selectionAnchorVerse = 16
         } else if let first = books.first {
             self.selectedBook = first
             self.selectedChapter = 1
+            self.selectedVerseNumbers = []
         } else {
             // Fallback placeholder
             self.selectedBook = BibleBook(
@@ -139,8 +144,102 @@ public final class AppState: ObservableObject {
     public func jumpTo(book: BibleBook, chapter: Int, verse: Int? = nil) {
         self.selectedBook = book
         self.selectedChapter = min(max(1, chapter), book.totalChapters)
-        self.highlightedVerseNumber = verse
+        if let v = verse {
+            self.highlightedVerseNumber = v
+            self.selectedVerseNumbers = [v]
+            self.selectionAnchorVerse = v
+        } else {
+            self.highlightedVerseNumber = nil
+            self.selectedVerseNumbers.removeAll()
+            self.selectionAnchorVerse = nil
+        }
         loadCurrentChapter()
+    }
+
+    public static func formatVerseNumbers(_ verses: Set<Int>) -> String {
+        let sorted = verses.sorted()
+        guard !sorted.isEmpty else { return "" }
+        var ranges: [ClosedRange<Int>] = []
+        for v in sorted {
+            if let last = ranges.last, last.upperBound == v - 1 {
+                ranges[ranges.count - 1] = last.lowerBound...v
+            } else {
+                ranges.append(v...v)
+            }
+        }
+        return ranges.map { r in
+            r.lowerBound == r.upperBound ? "\(r.lowerBound)" : "\(r.lowerBound)-\(r.upperBound)"
+        }.joined(separator: ", ")
+    }
+
+    public var selectedVersesReference: String {
+        let targetVerses = !selectedVerseNumbers.isEmpty ? selectedVerseNumbers : (highlightedVerseNumber != nil ? [highlightedVerseNumber!] : [])
+        guard !targetVerses.isEmpty else {
+            return "\(selectedBook.name) \(selectedChapter)"
+        }
+        return "\(selectedBook.name) \(selectedChapter):\(Self.formatVerseNumbers(targetVerses))"
+    }
+
+    public func selectSingleVerse(_ vnum: Int) {
+        selectedVerseNumbers = [vnum]
+        selectionAnchorVerse = vnum
+        highlightedVerseNumber = vnum
+    }
+
+    public func toggleVerse(_ vnum: Int) {
+        if selectedVerseNumbers.contains(vnum) {
+            selectedVerseNumbers.remove(vnum)
+            if highlightedVerseNumber == vnum {
+                highlightedVerseNumber = selectedVerseNumbers.sorted().first
+            }
+        } else {
+            selectedVerseNumbers.insert(vnum)
+            selectionAnchorVerse = vnum
+            highlightedVerseNumber = vnum
+        }
+    }
+
+    public func handleVerseClick(_ vnum: Int, isShift: Bool, isCommand: Bool) {
+        if isShift {
+            let anchor = selectionAnchorVerse ?? highlightedVerseNumber ?? vnum
+            let low = min(anchor, vnum)
+            let high = max(anchor, vnum)
+            for v in low...high {
+                selectedVerseNumbers.insert(v)
+            }
+            highlightedVerseNumber = vnum
+        } else if isCommand {
+            toggleVerse(vnum)
+        } else {
+            selectSingleVerse(vnum)
+        }
+    }
+
+    public func clearVerseSelection() {
+        selectedVerseNumbers.removeAll()
+        highlightedVerseNumber = nil
+        selectionAnchorVerse = nil
+    }
+
+    public func selectAllVersesInChapter() {
+        selectedVerseNumbers = Set(sortedVerseNumbers)
+        highlightedVerseNumber = sortedVerseNumbers.first
+    }
+
+    public func selectedVersesPlainText(versionId: String? = nil) -> String {
+        let vid = versionId ?? activeVersions.first ?? "RVR1960"
+        let sortedVnums = selectedVerseNumbers.sorted()
+        var lines: [String] = []
+        for v in sortedVnums {
+            if let verseObj = currentParallelVerses[v]?[vid] {
+                let clean = verseObj.text
+                    .replacingOccurrences(of: "<wj>", with: "")
+                    .replacingOccurrences(of: "</wj>", with: "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                lines.append("\(v) \(clean)")
+            }
+        }
+        return lines.joined(separator: "\n")
     }
 
     public func executeSearch() {
@@ -163,18 +262,49 @@ public final class AppState: ObservableObject {
     }
 
     public func createNoteForCurrentSelection(verseNumber: Int? = nil) {
-        let targetVerse = verseNumber ?? highlightedVerseNumber ?? 1
-        let cid = (selectedBook.id * 1_000_000) + (selectedChapter * 1_000) + targetVerse
-        let refStr = "\(selectedBook.name) \(selectedChapter):\(targetVerse)"
+        let targetVerses: [Int]
+        if let v = verseNumber {
+            targetVerses = [v]
+        } else if !selectedVerseNumbers.isEmpty {
+            targetVerses = selectedVerseNumbers.sorted()
+        } else if let h = highlightedVerseNumber {
+            targetVerses = [h]
+        } else {
+            targetVerses = [1]
+        }
+
+        let startVerse = targetVerses.first ?? 1
+        let cid = (selectedBook.id * 1_000_000) + (selectedChapter * 1_000) + startVerse
+        let formattedRange = Self.formatVerseNumbers(Set(targetVerses))
+        let refStr = "\(selectedBook.name) \(selectedChapter):\(formattedRange)"
+        let primaryVersion = activeVersions.first ?? "RVR1960"
         let versionsUsedStr = activeVersions.joined(separator: " / ")
+
+        var initialContent = ""
+        var quotes: [String] = []
+        for v in targetVerses {
+            if let verseObj = currentParallelVerses[v]?[primaryVersion] {
+                let clean = verseObj.text
+                    .replacingOccurrences(of: "<wj>", with: "")
+                    .replacingOccurrences(of: "</wj>", with: "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                quotes.append("[\(v)] \(clean)")
+            }
+        }
+
+        if !quotes.isEmpty {
+            initialContent = "«" + quotes.joined(separator: "\n") + "» (\(primaryVersion))\n\n"
+        }
+
+        let summaryStr = targetVerses.count > 1 ? "\(targetVerses.count) versículos seleccionados" : (quotes.first ?? "")
 
         let newNote = StudyNote(
             canonicalVerseId: cid,
             verseReference: refStr,
             versionUsed: versionsUsedStr,
             topic: "Reflexión",
-            summary: "",
-            content: ""
+            summary: summaryStr,
+            content: initialContent
         )
         self.selectedNoteForEditing = newNote
         self.isCreatingNewNote = true

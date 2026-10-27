@@ -98,7 +98,7 @@ public struct StudyNotesInspectorView: View {
                     .font(.system(size: 15))
             }
             .buttonStyle(.plain)
-            .help("Nueva nota de estudio")
+            .help(!appState.selectedVerseNumbers.isEmpty ? "Nueva nota para \(appState.selectedVersesReference)" : "Nueva nota de estudio")
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

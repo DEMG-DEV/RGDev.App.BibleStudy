@@ -38,6 +38,7 @@ public struct ParallelReaderView: View {
                     chapterNavigationFooter
                 }
                 .padding(.vertical, 16)
+                .padding(.bottom, appState.selectedVerseNumbers.isEmpty ? 0 : 60)
             }
             .onChange(of: appState.highlightedVerseNumber) { _, targetVerse in
                 if let v = targetVerse {
@@ -53,6 +54,14 @@ public struct ParallelReaderView: View {
             }
         }
         .background(Color(nsColor: .textBackgroundColor))
+        .overlay(alignment: .bottom) {
+            if !appState.selectedVerseNumbers.isEmpty {
+                multiVerseActionBar
+                    .padding(.bottom, 20)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: appState.selectedVerseNumbers)
     }
 
     private var chapterHeaderView: some View {
@@ -102,7 +111,7 @@ public struct ParallelReaderView: View {
 
     @ViewBuilder
     private func parallelVerseRow(vnum: Int) -> some View {
-        let isHighlighted = (appState.highlightedVerseNumber == vnum)
+        let isSelected = appState.selectedVerseNumbers.contains(vnum) || (appState.highlightedVerseNumber == vnum && appState.selectedVerseNumbers.isEmpty)
         let isHovered = (hoveredVerse == vnum)
 
         // Check if any version has a pericope heading for this verse
@@ -126,7 +135,7 @@ public struct ParallelReaderView: View {
             // Synchronized Parallel Columns for this exact verse
             HStack(alignment: .top, spacing: 16) {
                 ForEach(activeVersionsList, id: \.self) { versionId in
-                    verseCell(versionId: versionId, vnum: vnum, isHighlighted: isHighlighted)
+                    verseCell(versionId: versionId, vnum: vnum, isSelected: isSelected)
                         .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
             }
@@ -134,36 +143,77 @@ public struct ParallelReaderView: View {
             .padding(.horizontal, 8)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isHighlighted ? Color.accentColor.opacity(0.12) : (isHovered ? Color.secondary.opacity(0.05) : Color.clear))
+                    .fill(isSelected ? Color.accentColor.opacity(0.12) : (isHovered ? Color.secondary.opacity(0.05) : Color.clear))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(isHighlighted ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+                    .stroke(isSelected ? Color.accentColor.opacity(0.35) : Color.clear, lineWidth: 1)
             )
         }
+        .contentShape(Rectangle())
         .onHover { hovering in
             hoveredVerse = hovering ? vnum : nil
         }
         .onTapGesture {
-            appState.highlightedVerseNumber = vnum
+            let flags = NSEvent.modifierFlags
+            let isShift = flags.contains(.shift)
+            let isCommand = flags.contains(.command)
+            appState.handleVerseClick(vnum, isShift: isShift, isCommand: isCommand)
+        }
+        .contextMenu {
+            Button {
+                appState.createNoteForCurrentSelection(verseNumber: isSelected ? nil : vnum)
+            } label: {
+                Label(isSelected && appState.selectedVerseNumbers.count > 1 ? "Crear nota para versículos seleccionados" : "Crear nota para versículo \(vnum)", systemImage: "square.and.pencil")
+            }
+
+            Button {
+                if !isSelected {
+                    appState.selectSingleVerse(vnum)
+                }
+                copySelectedVersesToClipboard()
+            } label: {
+                Label("Copiar versículo(s)", systemImage: "doc.on.doc")
+            }
+
+            if !appState.selectedVerseNumbers.isEmpty {
+                Divider()
+                Button {
+                    appState.clearVerseSelection()
+                } label: {
+                    Label("Deseleccionar todo", systemImage: "xmark.circle")
+                }
+            }
         }
     }
 
     @ViewBuilder
-    private func verseCell(versionId: String, vnum: Int, isHighlighted: Bool) -> some View {
+    private func verseCell(versionId: String, vnum: Int, isSelected: Bool) -> some View {
         if let verse = appState.currentParallelVerses[vnum]?[versionId] {
             HStack(alignment: .top, spacing: 6) {
-                // Verse number badge
-                Text("\(vnum)")
-                    .font(.system(size: max(9, appState.fontSize - 6), weight: .bold, design: .rounded))
-                    .foregroundColor(isHighlighted ? .white : .secondary)
-                    .frame(minWidth: 20, alignment: .center)
-                    .padding(.horizontal, 3)
-                    .padding(.vertical, 1)
+                // Verse selection indicator & number badge
+                Button {
+                    appState.toggleVerse(vnum)
+                } label: {
+                    HStack(spacing: 3) {
+                        if isSelected || appState.selectedVerseNumbers.count > 1 || hoveredVerse == vnum {
+                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundColor(isSelected ? .accentColor : .secondary.opacity(0.6))
+                        }
+                        Text("\(vnum)")
+                            .font(.system(size: max(9, appState.fontSize - 6), weight: .bold, design: .rounded))
+                            .foregroundColor(isSelected ? .white : .secondary)
+                    }
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
                     .background(
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(isHighlighted ? Color.accentColor : Color.clear)
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(isSelected ? Color.accentColor : Color.clear)
                     )
+                }
+                .buttonStyle(.plain)
+                .help("Seleccionar versículo (Shift+Clic para rango, ⌘+Clic para varios)")
 
                 // Verse Text with Red Letter Words
                 RedLetterText(
@@ -175,17 +225,17 @@ public struct ParallelReaderView: View {
 
                 Spacer(minLength: 0)
 
-                // Quick Note Action button on selection
-                if isHighlighted {
+                // Quick Note Action button on selection (only on rightmost column)
+                if isSelected && versionId == activeVersionsList.last {
                     Button {
-                        appState.createNoteForCurrentSelection(verseNumber: vnum)
+                        appState.createNoteForCurrentSelection(verseNumber: appState.selectedVerseNumbers.count > 1 ? nil : vnum)
                     } label: {
                         Image(systemName: "square.and.pencil")
                             .font(.system(size: 11))
                             .foregroundColor(.accentColor)
                     }
                     .buttonStyle(.plain)
-                    .help("Crear nota de estudio para este versículo")
+                    .help("Crear nota de estudio para los versículos seleccionados")
                 }
             }
         } else {
@@ -200,6 +250,85 @@ public struct ParallelReaderView: View {
                     .italic()
             }
         }
+    }
+
+    private var multiVerseActionBar: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.accentColor)
+                .font(.system(size: 15))
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(appState.selectedVersesReference)
+                    .font(.system(size: 13, weight: .bold))
+                Text("\(appState.selectedVerseNumbers.count) versículo\(appState.selectedVerseNumbers.count == 1 ? "" : "s") seleccionado\(appState.selectedVerseNumbers.count == 1 ? "" : "s")")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+
+            Divider()
+                .frame(height: 18)
+
+            // Copy button
+            Button {
+                copySelectedVersesToClipboard()
+            } label: {
+                Label("Copiar", systemImage: "doc.on.doc")
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+
+            // Add Note button
+            Button {
+                appState.createNoteForCurrentSelection()
+            } label: {
+                Label("Crear Nota", systemImage: "square.and.pencil")
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+
+            Divider()
+                .frame(height: 18)
+
+            // Deselect button
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    appState.clearVerseSelection()
+                }
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.secondary)
+                    .padding(5)
+                    .background(Color.secondary.opacity(0.12))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .help("Deseleccionar versículos")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(nsColor: .windowBackgroundColor))
+                .shadow(color: Color.black.opacity(0.15), radius: 12, x: 0, y: 4)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.accentColor.opacity(0.3), lineWidth: 1)
+        )
+        .frame(maxWidth: 520)
+    }
+
+    private func copySelectedVersesToClipboard() {
+        let citation = appState.selectedVersesReference
+        let version = appState.activeVersions.first ?? "RVR1960"
+        let versesText = appState.selectedVersesPlainText(versionId: version)
+        let fullString = "«\(versesText)»\n— \(citation) (\(version))"
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(fullString, forType: .string)
     }
 
     private var chapterNavigationFooter: some View {
