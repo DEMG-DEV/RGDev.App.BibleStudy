@@ -11,17 +11,25 @@ public struct ParallelReaderView: View {
     public var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 16) {
                     // Chapter Header
                     chapterHeaderView
 
                     Divider()
                         .padding(.horizontal)
 
-                    // Parallel Columns Layout
-                    HStack(alignment: .top, spacing: 16) {
-                        ForEach(activeVersionsList, id: \.self) { versionId in
-                            versionColumn(versionId: versionId)
+                    // Sticky Column Headers (Translations)
+                    versionColumnsHeader
+                        .padding(.horizontal)
+
+                    Divider()
+                        .padding(.horizontal)
+
+                    // Synchronized Row-by-Row Parallel Verses
+                    LazyVStack(spacing: 12) {
+                        ForEach(appState.sortedVerseNumbers, id: \.self) { vnum in
+                            parallelVerseRow(vnum: vnum)
+                                .id("verse_\(vnum)")
                         }
                     }
                     .padding(.horizontal)
@@ -72,68 +80,88 @@ public struct ParallelReaderView: View {
         }
     }
 
-    @ViewBuilder
-    private func versionColumn(versionId: String) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Column Header
-            HStack {
-                Text(versionDisplayName(versionId))
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text(versionId)
-                    .font(.system(size: 10, weight: .semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color(nsColor: .controlBackgroundColor))
-                    .cornerRadius(4)
-            }
-            .padding(.bottom, 4)
-
-            // Verses List
-            VStack(alignment: .leading, spacing: 14) {
-                ForEach(appState.sortedVerseNumbers, id: \.self) { vnum in
-                    if let verse = appState.currentParallelVerses[vnum]?[versionId] {
-                        verseRow(verse: verse, vnum: vnum)
-                            .id("verse_\(vnum)")
-                    } else {
-                        // Empty placeholder if verse is merged in this translation
-                        Text("—")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.vertical, 4)
-                    }
+    private var versionColumnsHeader: some View {
+        HStack(alignment: .center, spacing: 16) {
+            ForEach(activeVersionsList, id: \.self) { versionId in
+                HStack {
+                    Text(versionDisplayName(versionId))
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(versionId)
+                        .font(.system(size: 10, weight: .semibold))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color(nsColor: .controlBackgroundColor))
+                        .cornerRadius(4)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     @ViewBuilder
-    private func verseRow(verse: BibleVerse, vnum: Int) -> some View {
+    private func parallelVerseRow(vnum: Int) -> some View {
         let isHighlighted = (appState.highlightedVerseNumber == vnum)
         let isHovered = (hoveredVerse == vnum)
 
-        VStack(alignment: .leading, spacing: 4) {
-            // Pericope heading if present
-            if let heading = verse.heading, !heading.isEmpty {
-                Text(heading)
-                    .font(.system(size: appState.fontSize - 1, weight: .bold, design: appState.fontDesign == .serif ? .serif : .default))
-                    .foregroundColor(.accentColor)
-                    .padding(.top, 8)
-                    .padding(.bottom, 2)
+        // Check if any version has a pericope heading for this verse
+        let headingText: String? = activeVersionsList.compactMap { vid in
+            appState.currentParallelVerses[vnum]?[vid]?.heading
+        }.first
+
+        VStack(alignment: .leading, spacing: 6) {
+            // Pericope heading banner if present
+            if let heading = headingText, !heading.isEmpty {
+                HStack {
+                    Text(heading)
+                        .font(.system(size: appState.fontSize, weight: .bold, design: appState.fontDesign == .serif ? .serif : .default))
+                        .foregroundColor(.accentColor)
+                    Spacer()
+                }
+                .padding(.top, 10)
+                .padding(.bottom, 2)
             }
 
+            // Synchronized Parallel Columns for this exact verse
+            HStack(alignment: .top, spacing: 16) {
+                ForEach(activeVersionsList, id: \.self) { versionId in
+                    verseCell(versionId: versionId, vnum: vnum, isHighlighted: isHighlighted)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                }
+            }
+            .padding(.vertical, 6)
+            .padding(.horizontal, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isHighlighted ? Color.accentColor.opacity(0.12) : (isHovered ? Color.secondary.opacity(0.05) : Color.clear))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(isHighlighted ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 1)
+            )
+        }
+        .onHover { hovering in
+            hoveredVerse = hovering ? vnum : nil
+        }
+        .onTapGesture {
+            appState.highlightedVerseNumber = vnum
+        }
+    }
+
+    @ViewBuilder
+    private func verseCell(versionId: String, vnum: Int, isHighlighted: Bool) -> some View {
+        if let verse = appState.currentParallelVerses[vnum]?[versionId] {
             HStack(alignment: .top, spacing: 6) {
-                // Verse Number chip
+                // Verse number badge
                 Text("\(vnum)")
                     .font(.system(size: max(9, appState.fontSize - 6), weight: .bold, design: .rounded))
                     .foregroundColor(isHighlighted ? .white : .secondary)
                     .frame(minWidth: 20, alignment: .center)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 1)
                     .background(
-                        RoundedRectangle(cornerRadius: 4)
+                        RoundedRectangle(cornerRadius: 3)
                             .fill(isHighlighted ? Color.accentColor : Color.clear)
                     )
 
@@ -145,10 +173,11 @@ public struct ParallelReaderView: View {
                     fontDesign: appState.fontDesign
                 )
 
-                // Action button on hover to create note
-                if isHovered || isHighlighted {
+                Spacer(minLength: 0)
+
+                // Quick Note Action button on selection
+                if isHighlighted {
                     Button {
-                        appState.highlightedVerseNumber = vnum
                         appState.createNoteForCurrentSelection(verseNumber: vnum)
                     } label: {
                         Image(systemName: "square.and.pencil")
@@ -159,17 +188,16 @@ public struct ParallelReaderView: View {
                     .help("Crear nota de estudio para este versículo")
                 }
             }
-            .padding(.vertical, 4)
-            .padding(.horizontal, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(isHighlighted ? Color.accentColor.opacity(0.12) : (isHovered ? Color.secondary.opacity(0.06) : Color.clear))
-            )
-            .onHover { hovering in
-                hoveredVerse = hovering ? vnum : nil
-            }
-            .onTapGesture {
-                appState.highlightedVerseNumber = vnum
+        } else {
+            // Verse merged or omitted in dynamic equivalence
+            HStack(alignment: .top, spacing: 6) {
+                Text("\(vnum)")
+                    .font(.system(size: max(9, appState.fontSize - 6), weight: .bold, design: .rounded))
+                    .foregroundColor(.secondary.opacity(0.5))
+                Text("— (Incluido en versículo contiguo)")
+                    .font(.system(size: appState.fontSize - 3))
+                    .foregroundColor(.secondary.opacity(0.6))
+                    .italic()
             }
         }
     }

@@ -13,12 +13,12 @@ public struct OmniboxSearchView: View {
                     .foregroundColor(.accentColor)
                     .font(.system(size: 15))
 
-                TextField("Buscar cita (Ej: 'Jn 3:16', 'Sal 23') o palabra...", text: $appState.searchQuery)
+                TextField("Buscar cita (Ej: 'Jn 3:16', 'Sal 23', 'Ex 3') o palabra...", text: $appState.searchQuery)
                     .textFieldStyle(.plain)
                     .font(.system(size: 14))
                     .focused($isFieldFocused)
                     .onSubmit {
-                        appState.executeSearch()
+                        handleSearchSubmit()
                     }
 
                 if !appState.searchQuery.isEmpty {
@@ -54,9 +54,23 @@ public struct OmniboxSearchView: View {
                 resultsList
             }
         }
-        .frame(width: 520, height: 400)
+        .frame(width: 520, height: 420)
         .onAppear {
             isFieldFocused = true
+        }
+    }
+
+    private func handleSearchSubmit() {
+        let q = appState.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return }
+
+        // Check citation jump first
+        if let citation = BibleDatabase.shared.parseCitation(input: q, books: appState.allBooks) {
+            appState.jumpTo(book: citation.book, chapter: citation.chapter, verse: citation.verse)
+            isPresented = false
+        } else {
+            // Perform FTS search
+            appState.executeSearch()
         }
     }
 

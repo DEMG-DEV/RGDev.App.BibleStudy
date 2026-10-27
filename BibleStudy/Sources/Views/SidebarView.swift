@@ -25,11 +25,11 @@ public struct SidebarView: View {
         }
 
         if !searchText.isEmpty {
-            let q = searchText.lowercased()
+            let q = searchText.lowercased().folding(options: .diacriticInsensitive, locale: .current)
             list = list.filter {
-                $0.name.lowercased().contains(q) ||
-                $0.abbreviation.lowercased().contains(q) ||
-                $0.category.lowercased().contains(q)
+                $0.name.lowercased().folding(options: .diacriticInsensitive, locale: .current).contains(q) ||
+                $0.abbreviation.lowercased().folding(options: .diacriticInsensitive, locale: .current).contains(q) ||
+                $0.category.lowercased().folding(options: .diacriticInsensitive, locale: .current).contains(q)
             }
         }
         return list
@@ -48,7 +48,6 @@ public struct SidebarView: View {
             }
         }
 
-        // Catch any remaining
         let covered = Set(result.flatMap { $0.books.map { $0.id } })
         let remaining = books.filter { !covered.contains($0.id) }
         if !remaining.isEmpty {
@@ -76,7 +75,7 @@ public struct SidebarView: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.secondary)
                     .font(.system(size: 11))
-                TextField("Filtrar libro (Ej: Jn, Sal)", text: $searchText)
+                TextField("Filtrar libro (Ej: Jn, Sal, Ex)", text: $searchText)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
                 if !searchText.isEmpty {
@@ -102,7 +101,7 @@ public struct SidebarView: View {
             // Canonical Physical Bible List
             List {
                 ForEach(groupedBooks, id: \.category) { group in
-                    Section(header: Text(group.category).font(.system(size: 10, weight: .semibold)).foregroundColor(.secondary)) {
+                    Section(header: Text(group.category).font(.system(size: 10, weight: .bold)).foregroundColor(.secondary)) {
                         ForEach(group.books) { book in
                             bookRow(book)
                         }
@@ -111,7 +110,7 @@ public struct SidebarView: View {
             }
             .listStyle(.sidebar)
         }
-        .frame(minWidth: 220, idealWidth: 250)
+        .frame(minWidth: 220, idealWidth: 260)
     }
 
     @ViewBuilder
@@ -119,17 +118,28 @@ public struct SidebarView: View {
         let isSelected = (book.id == appState.selectedBook.id)
 
         HStack {
-            Image(systemName: isSelected ? "book.fill" : "book")
-                .foregroundColor(isSelected ? .accentColor : .secondary)
-                .font(.system(size: 12))
+            // Main Book Selection Button
+            Button {
+                if appState.selectedBook.id != book.id {
+                    appState.jumpTo(book: book, chapter: 1)
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: isSelected ? "book.fill" : "book")
+                        .foregroundColor(isSelected ? .accentColor : .secondary)
+                        .font(.system(size: 12))
 
-            Text(book.name)
-                .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
-                .foregroundColor(isSelected ? .accentColor : .primary)
+                    Text(book.name)
+                        .font(.system(size: 13, weight: isSelected ? .bold : .regular))
+                        .foregroundColor(isSelected ? .accentColor : .primary)
 
-            Spacer()
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
 
-            // Thumb index button with current chapter or chapter count
+            // Thumb index popover button
             Button {
                 activePopoverBook = book
             } label: {
@@ -140,16 +150,20 @@ public struct SidebarView: View {
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
                             .background(Color.accentColor.opacity(0.15))
+                            .foregroundColor(.accentColor)
                             .cornerRadius(4)
                     } else {
                         Text("\(book.totalChapters)")
-                            .font(.system(size: 10, weight: .regular))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.secondary)
                     }
                     Image(systemName: "chevron.right")
                         .font(.system(size: 8))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .popover(isPresented: Binding(
@@ -162,12 +176,11 @@ public struct SidebarView: View {
                 ))
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if appState.selectedBook.id != book.id {
-                appState.jumpTo(book: book, chapter: 1)
-            }
-        }
-        .padding(.vertical, 2)
+        .padding(.vertical, 3)
+        .padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isSelected ? Color.accentColor.opacity(0.12) : Color.clear)
+        )
     }
 }

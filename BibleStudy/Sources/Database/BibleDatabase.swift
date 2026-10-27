@@ -5,7 +5,6 @@ public final class BibleDatabase: @unchecked Sendable {
     public static let shared = BibleDatabase()
 
     private var db: OpaquePointer?
-    private let queue = DispatchQueue(label: "com.rgdev.biblestudy.db", qos: .userInitiated)
 
     private init() {
         openDatabase()
@@ -18,30 +17,40 @@ public final class BibleDatabase: @unchecked Sendable {
     }
 
     private func openDatabase() {
+        let fileManager = FileManager.default
         var dbPath: String?
 
-        // 1. Check Bundle.module resource
-        #if SWIFT_PACKAGE
-        if let bundlePath = Bundle.module.path(forResource: "Bibles", ofType: "sqlite") {
-            dbPath = bundlePath
-        }
-        #endif
+        // Candidate paths in order of preference
+        let candidatePaths: [String?] = [
+            Bundle.main.resourceURL?.appendingPathComponent("BibleStudy_BibleStudy.bundle/Contents/Resources/Bibles.sqlite").path,
+            Bundle.main.bundleURL.appendingPathComponent("BibleStudy_BibleStudy.bundle/Contents/Resources/Bibles.sqlite").path,
+            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("BibleStudy_BibleStudy.bundle/Contents/Resources/Bibles.sqlite").path,
+            Bundle.main.resourceURL?.appendingPathComponent("BibleStudy_BibleStudy.bundle/Bibles.sqlite").path,
+            Bundle.main.bundleURL.appendingPathComponent("BibleStudy_BibleStudy.bundle/Bibles.sqlite").path,
+            Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("BibleStudy_BibleStudy.bundle/Bibles.sqlite").path,
+            Bundle.main.path(forResource: "Bibles", ofType: "sqlite"),
+            "BibleStudy/Sources/Resources/Bibles.sqlite",
+            "Sources/Resources/Bibles.sqlite",
+            "/Users/devln/RGDev/RGDev.App.BibleStudy/BibleStudy/Sources/Resources/Bibles.sqlite"
+        ]
 
-        // 2. Check main bundle
-        if dbPath == nil {
-            dbPath = Bundle.main.path(forResource: "Bibles", ofType: "sqlite")
-        }
-
-        // 3. Fallback to local development directory
-        if dbPath == nil {
-            let directPath = "BibleStudy/Sources/Resources/Bibles.sqlite"
-            if FileManager.default.fileExists(atPath: directPath) {
-                dbPath = directPath
+        for pathOpt in candidatePaths {
+            if let p = pathOpt, fileManager.fileExists(atPath: p) {
+                dbPath = p
+                break
             }
         }
 
+        #if SWIFT_PACKAGE
+        if dbPath == nil {
+            if let bundlePath = Bundle.module.path(forResource: "Bibles", ofType: "sqlite") {
+                dbPath = bundlePath
+            }
+        }
+        #endif
+
         guard let path = dbPath else {
-            print("❌ BibleDatabase: Bibles.sqlite not found.")
+            print("❌ BibleDatabase: Bibles.sqlite not found in any candidate path.")
             return
         }
 
@@ -187,7 +196,6 @@ public final class BibleDatabase: @unchecked Sendable {
         guard let db = db, !query.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
         var results: [SearchResult] = []
 
-        // Format query for FTS5 (support prefix match and individual terms)
         let cleanedTerms = query.components(separatedBy: .whitespaces)
             .map { $0.trimmingCharacters(in: .punctuationCharacters) }
             .filter { !$0.isEmpty }
@@ -239,36 +247,39 @@ public final class BibleDatabase: @unchecked Sendable {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !trimmed.isEmpty else { return nil }
 
+        // Normalize diacritics: 'éxodo' -> 'exodo', 'génesis' -> 'genesis'
+        let normalized = trimmed.folding(options: .diacriticInsensitive, locale: .current)
+
         // Pattern: [book name/abbreviation] [chapter](:[verse])?
-        // Examples: "jn 3:16", "juan 3 16", "salmos 23", "1 co 13:4", "gen 1"
-        let pattern = #"^((?:\d\s*)?[a-záéíóúñ]+)\s*(\d+)[\s:]*(\d*)?$"#
+        let pattern = #"^((?:\d\s*)?[a-z]+)\s*(\d+)[\s:]*(\d*)?$"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) else {
             return nil
         }
 
-        let range = NSRange(location: 0, length: trimmed.utf16.count)
-        guard let match = regex.firstMatch(in: trimmed, options: [], range: range) else {
+        let range = NSRange(location: 0, length: normalized.utf16.count)
+        guard let match = regex.firstMatch(in: normalized, options: [], range: range) else {
             return nil
         }
 
-        guard let bookRange = Range(match.range(at: 1), in: trimmed),
-              let chapterRange = Range(match.range(at: 2), in: trimmed),
-              let chapter = Int(trimmed[chapterRange]) else {
+        guard let bookRange = Range(match.range(at: 1), in: normalized),
+              let chapterRange = Range(match.range(at: 2), in: normalized),
+              let chapter = Int(normalized[chapterRange]) else {
             return nil
         }
 
-        let rawBook = String(trimmed[bookRange]).replacingOccurrences(of: " ", with: "")
+        let rawBook = String(normalized[bookRange]).replacingOccurrences(of: " ", with: "")
         var verse: Int? = nil
         if match.numberOfRanges > 3, match.range(at: 3).location != NSNotFound,
-           let verseRange = Range(match.range(at: 3), in: trimmed),
-           let v = Int(trimmed[verseRange]) {
+           let verseRange = Range(match.range(at: 3), in: normalized),
+           let v = Int(normalized[verseRange]) {
             verse = v
         }
 
-        // Find matching book by abbreviation or name prefix
-        if let foundBook = books.first(where: {
-            $0.abbreviation.lowercased() == rawBook ||
-            $0.name.lowercased().replacingOccurrences(of: " ", with: "").hasPrefix(rawBook)
+        // Find matching book by normalized abbreviation or name prefix
+        if let foundBook = books.first(where: { book in
+            let bookNorm = book.name.lowercased().folding(options: .diacriticInsensitive, locale: .current).replacingOccurrences(of: " ", with: "")
+            let abbrNorm = book.abbreviation.lowercased().folding(options: .diacriticInsensitive, locale: .current)
+            return abbrNorm == rawBook || bookNorm.hasPrefix(rawBook)
         }) {
             let validChapter = max(1, min(chapter, foundBook.totalChapters))
             return (foundBook, validChapter, verse)

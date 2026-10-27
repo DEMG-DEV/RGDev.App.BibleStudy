@@ -7,44 +7,78 @@ public final class StudyNotesStore: ObservableObject {
 
     @Published public private(set) var notes: [StudyNote] = []
 
-    private let fileURL: URL
+    private var fileURL: URL?
 
     private init() {
-        let fileManager = FileManager.default
-        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        let dirURL = appSupport.appendingPathComponent("RGDev.App.BibleStudy", isDirectory: true)
-
-        try? fileManager.createDirectory(at: dirURL, withIntermediateDirectories: true)
-        self.fileURL = dirURL.appendingPathComponent("study_notes.json")
-
+        self.fileURL = determineStorageURL()
         loadNotes()
         if notes.isEmpty {
             createInitialSampleNotes()
         }
     }
 
+    private func determineStorageURL() -> URL {
+        let fileManager = FileManager.default
+
+        // Candidates in order of preference
+        var candidateDirs: [URL] = []
+
+        if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            candidateDirs.append(appSupport.appendingPathComponent("RGDev.App.BibleStudy", isDirectory: true))
+        }
+
+        if let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+            candidateDirs.append(docs.appendingPathComponent("BibleStudyNotes", isDirectory: true))
+        }
+
+        let localUserData = URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("UserData", isDirectory: true)
+        candidateDirs.append(localUserData)
+
+        let tempDir = fileManager.temporaryDirectory.appendingPathComponent("RGDev.App.BibleStudy", isDirectory: true)
+        candidateDirs.append(tempDir)
+
+        for dir in candidateDirs {
+            do {
+                try fileManager.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
+                // Test writability
+                let testFile = dir.appendingPathComponent(".write_test")
+                try "ok".write(to: testFile, atomically: true, encoding: .utf8)
+                try fileManager.removeItem(at: testFile)
+                print("✅ StudyNotesStore: Using storage directory: \(dir.path)")
+                return dir.appendingPathComponent("study_notes.json")
+            } catch {
+                continue
+            }
+        }
+
+        // Fallback to memory-like path in temp
+        let fallback = fileManager.temporaryDirectory.appendingPathComponent("study_notes.json")
+        return fallback
+    }
+
     private func loadNotes() {
-        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+        guard let url = fileURL, FileManager.default.fileExists(atPath: url.path) else { return }
         do {
-            let data = try Data(contentsOf: fileURL)
+            let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             let loaded = try decoder.decode([StudyNote].self, from: data)
             self.notes = loaded.sorted(by: { $0.createdAt > $1.createdAt })
         } catch {
-            print("❌ StudyNotesStore: Failed to load notes: \(error)")
+            print("⚠️ StudyNotesStore: Failed to load notes: \(error)")
         }
     }
 
     private func saveToDisk() {
+        guard let url = fileURL else { return }
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
             encoder.dateEncodingStrategy = .iso8601
             let data = try encoder.encode(notes)
-            try data.write(to: fileURL, options: .atomic)
+            try data.write(to: url, options: .atomic)
         } catch {
-            print("❌ StudyNotesStore: Failed to save notes: \(error)")
+            print("⚠️ StudyNotesStore: Failed to save notes: \(error)")
         }
     }
 
@@ -69,7 +103,6 @@ public final class StudyNotesStore: ObservableObject {
             return note.dayGroupTitle
         }
 
-        // Maintain chronological order by earliest/latest note in group
         var result: [(dayTitle: String, notes: [StudyNote])] = []
         let uniqueTitles = notes.map { $0.dayGroupTitle }.reduce(into: [String]()) { all, title in
             if !all.contains(title) { all.append(title) }

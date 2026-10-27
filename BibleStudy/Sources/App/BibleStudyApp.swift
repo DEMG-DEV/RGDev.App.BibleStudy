@@ -7,6 +7,7 @@ struct BibleStudyApp: App {
             MainView()
                 .frame(minWidth: 850, minHeight: 550)
         }
+        .defaultSize(width: 1200, height: 800)
         .windowStyle(.titleBar)
         .windowToolbarStyle(.unified(showsTitle: false))
         .commands {
