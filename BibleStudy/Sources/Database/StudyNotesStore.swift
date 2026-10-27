@@ -1,0 +1,114 @@
+import Foundation
+import Combine
+
+@MainActor
+public final class StudyNotesStore: ObservableObject {
+    public static let shared = StudyNotesStore()
+
+    @Published public private(set) var notes: [StudyNote] = []
+
+    private let fileURL: URL
+
+    private init() {
+        let fileManager = FileManager.default
+        let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dirURL = appSupport.appendingPathComponent("RGDev.App.BibleStudy", isDirectory: true)
+
+        try? fileManager.createDirectory(at: dirURL, withIntermediateDirectories: true)
+        self.fileURL = dirURL.appendingPathComponent("study_notes.json")
+
+        loadNotes()
+        if notes.isEmpty {
+            createInitialSampleNotes()
+        }
+    }
+
+    private func loadNotes() {
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let loaded = try decoder.decode([StudyNote].self, from: data)
+            self.notes = loaded.sorted(by: { $0.createdAt > $1.createdAt })
+        } catch {
+            print("❌ StudyNotesStore: Failed to load notes: \(error)")
+        }
+    }
+
+    private func saveToDisk() {
+        do {
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            encoder.dateEncodingStrategy = .iso8601
+            let data = try encoder.encode(notes)
+            try data.write(to: fileURL, options: .atomic)
+        } catch {
+            print("❌ StudyNotesStore: Failed to save notes: \(error)")
+        }
+    }
+
+    public func save(note: StudyNote) {
+        if let index = notes.firstIndex(where: { $0.id == note.id }) {
+            notes[index] = note
+            notes[index].updatedAt = Date()
+        } else {
+            notes.insert(note, at: 0)
+        }
+        notes.sort(by: { $0.createdAt > $1.createdAt })
+        saveToDisk()
+    }
+
+    public func delete(id: UUID) {
+        notes.removeAll(where: { $0.id == id })
+        saveToDisk()
+    }
+
+    public func notesGroupedByDay() -> [(dayTitle: String, notes: [StudyNote])] {
+        let grouped = Dictionary(grouping: notes) { note -> String in
+            return note.dayGroupTitle
+        }
+
+        // Maintain chronological order by earliest/latest note in group
+        var result: [(dayTitle: String, notes: [StudyNote])] = []
+        let uniqueTitles = notes.map { $0.dayGroupTitle }.reduce(into: [String]()) { all, title in
+            if !all.contains(title) { all.append(title) }
+        }
+
+        for title in uniqueTitles {
+            if let groupNotes = grouped[title] {
+                result.append((dayTitle: title, notes: groupNotes.sorted(by: { $0.createdAt > $1.createdAt })))
+            }
+        }
+        return result
+    }
+
+    public func notesForChapter(bookNumber: Int, chapter: Int) -> [StudyNote] {
+        let minId = (bookNumber * 1_000_000) + (chapter * 1_000)
+        let maxId = minId + 999
+        return notes.filter { $0.canonicalVerseId >= minId && $0.canonicalVerseId <= maxId }
+    }
+
+    public func allTopics() -> [String] {
+        var set = Set<String>()
+        for note in notes {
+            let t = note.topic.trimmingCharacters(in: .whitespaces)
+            if !t.isEmpty { set.insert(t) }
+        }
+        return Array(set).sorted()
+    }
+
+    private func createInitialSampleNotes() {
+        let sample = StudyNote(
+            canonicalVerseId: 43003016, // Juan 3:16
+            verseReference: "Juan 3:16",
+            versionUsed: "RVR1960 / NTV",
+            topic: "Salvación y Gracia",
+            summary: "El amor incondicional del Padre expresado en la entrega de su único Hijo para vida eterna.",
+            content: "Análisis exegético del término 'ágape' en Juan 3:16. La iniciativa es 100% divina. En contraste entre RVR1960 ('unigénito') y NTV ('único Hijo'), ambas captan la singularidad del Mesías.",
+            highlightColorHex: "#30D158"
+        )
+        self.notes = [sample]
+        saveToDisk()
+    }
+}
