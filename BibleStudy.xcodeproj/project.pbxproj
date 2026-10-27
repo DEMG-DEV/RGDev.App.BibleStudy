@@ -1,0 +1,286 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+/* Begin PBXBuildFile section */
+		1CD52956B517CC3EF6B63F2E /* BibleStudyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0EA3142CC35A5AF6D32C892 /* BibleStudyApp.swift */; };
+		E7CEE9F67ADD2EF988C1B220 /* BibleBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6065B81B32BCB3F558D9602 /* BibleBook.swift */; };
+		6CF847785637210E7F4381AB /* BibleVerse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E031A539C698274C230E36 /* BibleVerse.swift */; };
+		76494C3C2470E31EFC40808D /* StudyNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB6DD0A9E1DCF8312CF84BAE /* StudyNote.swift */; };
+		AEFFD2DE06B57F6440B0FB39 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C15E7526011D5BF71D09DA7 /* AppState.swift */; };
+		1C0C78892CB95797E6AF1E29 /* BibleDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F480CDCB7F015BE8D84CF50E /* BibleDatabase.swift */; };
+		0A4A2ADC9829F49EE45E6803 /* StudyNotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431C7BCDCC5A9FE0B92DB2CE /* StudyNotesStore.swift */; };
+		9E2361942B8B0ACFC43D8B15 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D6BD590E56205BDE525386 /* MainView.swift */; };
+		2A7478FAB25F80EAD2957AD6 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322E95E626F085FB880C0C6A /* SidebarView.swift */; };
+		5A66AD301596C686747AE00D /* ChapterPickerPopover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 688E3B154DE240F025F0167B /* ChapterPickerPopover.swift */; };
+		1C4B91B753CC9941072255E3 /* ParallelReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815BAB0F1B6A30DD9D737594 /* ParallelReaderView.swift */; };
+		8CE228DE43F4E36953A389F5 /* RedLetterText.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9B4FD411B9AC6D5CA99A2F3 /* RedLetterText.swift */; };
+		C8FC1F06DC38C69AB5725C9E /* OmniboxSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781529C36E0816240E460625 /* OmniboxSearchView.swift */; };
+		50B3D9900D5741ED73552E0F /* StudyNotesInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 430E14FE90EE50E4D9044F1D /* StudyNotesInspectorView.swift */; };
+		72D9402A0F2300DE1D9A1859 /* Bibles.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 6CAB47DD3E48EE71627CB4FB /* Bibles.sqlite */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CE803E181B20065E3E0822ED /* BibleStudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BibleStudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0EA3142CC35A5AF6D32C892 /* BibleStudyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/App/BibleStudyApp.swift"; sourceTree = "<group>"; };
+		D6065B81B32BCB3F558D9602 /* BibleBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Models/BibleBook.swift"; sourceTree = "<group>"; };
+		58E031A539C698274C230E36 /* BibleVerse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Models/BibleVerse.swift"; sourceTree = "<group>"; };
+		EB6DD0A9E1DCF8312CF84BAE /* StudyNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Models/StudyNote.swift"; sourceTree = "<group>"; };
+		7C15E7526011D5BF71D09DA7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Models/AppState.swift"; sourceTree = "<group>"; };
+		F480CDCB7F015BE8D84CF50E /* BibleDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Database/BibleDatabase.swift"; sourceTree = "<group>"; };
+		431C7BCDCC5A9FE0B92DB2CE /* StudyNotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Database/StudyNotesStore.swift"; sourceTree = "<group>"; };
+		F7D6BD590E56205BDE525386 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/MainView.swift"; sourceTree = "<group>"; };
+		322E95E626F085FB880C0C6A /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/SidebarView.swift"; sourceTree = "<group>"; };
+		688E3B154DE240F025F0167B /* ChapterPickerPopover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/ChapterPickerPopover.swift"; sourceTree = "<group>"; };
+		815BAB0F1B6A30DD9D737594 /* ParallelReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/ParallelReaderView.swift"; sourceTree = "<group>"; };
+		C9B4FD411B9AC6D5CA99A2F3 /* RedLetterText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/RedLetterText.swift"; sourceTree = "<group>"; };
+		781529C36E0816240E460625 /* OmniboxSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/OmniboxSearchView.swift"; sourceTree = "<group>"; };
+		430E14FE90EE50E4D9044F1D /* StudyNotesInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BibleStudy/Sources/Views/StudyNotesInspectorView.swift"; sourceTree = "<group>"; };
+		6CAB47DD3E48EE71627CB4FB /* Bibles.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = "BibleStudy/Sources/Resources/Bibles.sqlite"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9D0C7678B4E3378CEA6FAE86 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BA42F36E712961FD93CD2157 = {
+			isa = PBXGroup;
+			children = (
+				C2F4C67AC237133713F6DDD4 /* Sources */,
+				40B9030D3776B3095D0B6F08 /* Resources */,
+				7FF56120FDE7D75FE4FEA536 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C2F4C67AC237133713F6DDD4 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				E0EA3142CC35A5AF6D32C892 /* BibleStudyApp.swift */,
+				D6065B81B32BCB3F558D9602 /* BibleBook.swift */,
+				58E031A539C698274C230E36 /* BibleVerse.swift */,
+				EB6DD0A9E1DCF8312CF84BAE /* StudyNote.swift */,
+				7C15E7526011D5BF71D09DA7 /* AppState.swift */,
+				F480CDCB7F015BE8D84CF50E /* BibleDatabase.swift */,
+				431C7BCDCC5A9FE0B92DB2CE /* StudyNotesStore.swift */,
+				F7D6BD590E56205BDE525386 /* MainView.swift */,
+				322E95E626F085FB880C0C6A /* SidebarView.swift */,
+				688E3B154DE240F025F0167B /* ChapterPickerPopover.swift */,
+				815BAB0F1B6A30DD9D737594 /* ParallelReaderView.swift */,
+				C9B4FD411B9AC6D5CA99A2F3 /* RedLetterText.swift */,
+				781529C36E0816240E460625 /* OmniboxSearchView.swift */,
+				430E14FE90EE50E4D9044F1D /* StudyNotesInspectorView.swift */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
+		40B9030D3776B3095D0B6F08 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6CAB47DD3E48EE71627CB4FB /* Bibles.sqlite */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		7FF56120FDE7D75FE4FEA536 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CE803E181B20065E3E0822ED /* BibleStudy.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7FC5A023BDAEB0324BF118D1 /* BibleStudy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4ED971F6D213ADADB367DC85 /* Build configuration list for PBXNativeTarget "BibleStudy" */;
+			buildPhases = (
+				0F8103B45A569A05DCFB0544 /* Sources */,
+				9D0C7678B4E3378CEA6FAE86 /* Frameworks */,
+				85CCF5A471F73D7464D36A48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BibleStudy;
+			productName = BibleStudy;
+			productReference = CE803E181B20065E3E0822ED /* BibleStudy.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		598A5C5D0ADC44D90D3C48D6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 09BA35D13A7FC1523F394A1C /* Build configuration list for PBXProject "BibleStudy" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = es;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				es,
+				Base,
+			);
+			mainGroup = BA42F36E712961FD93CD2157;
+			productRefGroup = 7FF56120FDE7D75FE4FEA536 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7FC5A023BDAEB0324BF118D1 /* BibleStudy */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		85CCF5A471F73D7464D36A48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72D9402A0F2300DE1D9A1859 /* Bibles.sqlite in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0F8103B45A569A05DCFB0544 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CD52956B517CC3EF6B63F2E /* BibleStudyApp.swift in Sources */,
+				E7CEE9F67ADD2EF988C1B220 /* BibleBook.swift in Sources */,
+				6CF847785637210E7F4381AB /* BibleVerse.swift in Sources */,
+				76494C3C2470E31EFC40808D /* StudyNote.swift in Sources */,
+				AEFFD2DE06B57F6440B0FB39 /* AppState.swift in Sources */,
+				1C0C78892CB95797E6AF1E29 /* BibleDatabase.swift in Sources */,
+				0A4A2ADC9829F49EE45E6803 /* StudyNotesStore.swift in Sources */,
+				9E2361942B8B0ACFC43D8B15 /* MainView.swift in Sources */,
+				2A7478FAB25F80EAD2957AD6 /* SidebarView.swift in Sources */,
+				5A66AD301596C686747AE00D /* ChapterPickerPopover.swift in Sources */,
+				1C4B91B753CC9941072255E3 /* ParallelReaderView.swift in Sources */,
+				8CE228DE43F4E36953A389F5 /* RedLetterText.swift in Sources */,
+				C8FC1F06DC38C69AB5725C9E /* OmniboxSearchView.swift in Sources */,
+				50B3D9900D5741ED73552E0F /* StudyNotesInspectorView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E2ADD73FB74F84A06B914512 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A29CC7059AB761DA421482E8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		36FA64F42BE7CDCBCFE87419 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BibleStudy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 RGDev. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-lsqlite3");
+				PRODUCT_BUNDLE_IDENTIFIER = com.rgdev.BibleStudy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AB2B011B5109AAD0FF10C172 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BibleStudy";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2026 RGDev. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = ("$(inherited)", "-lsqlite3");
+				PRODUCT_BUNDLE_IDENTIFIER = com.rgdev.BibleStudy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		09BA35D13A7FC1523F394A1C /* Build configuration list for PBXProject "BibleStudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E2ADD73FB74F84A06B914512 /* Debug */,
+				A29CC7059AB761DA421482E8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4ED971F6D213ADADB367DC85 /* Build configuration list for PBXNativeTarget "BibleStudy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				36FA64F42BE7CDCBCFE87419 /* Debug */,
+				AB2B011B5109AAD0FF10C172 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 598A5C5D0ADC44D90D3C48D6 /* Project object */;
+}
