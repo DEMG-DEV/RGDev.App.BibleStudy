@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest"><img src="https://img.shields.io/badge/Versi%C3%B3n-v1.1.0-blue.svg?style=flat-square" alt="Version"></a>
+  <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest"><img src="https://img.shields.io/badge/Versi%C3%B3n-v1.1.1-blue.svg?style=flat-square" alt="Version"></a>
   <img src="https://img.shields.io/badge/Plataforma-macOS%2014%20%7C%2015%2B%20(Sonoma%20%7C%20Sequoia)-black?style=flat-square&logo=apple" alt="macOS">
   <img src="https://img.shields.io/badge/Swift-6.0-F05138.svg?style=flat-square&logo=swift" alt="Swift 6">
   <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20Apple%20HIG-5856D6.svg?style=flat-square" alt="SwiftUI">
@@ -99,7 +99,7 @@ Cada vez que escribes una observación exegética o devocional, el puente en seg
 
 ### Opción 1: Descargar el Instalador Oficial (.DMG)
 1. Descarga la versión más reciente desde [Releases](https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest).
-2. Abre **`BibleStudy-1.1.0-macOS.dmg`**.
+2. Abre **`BibleStudy-1.1.1-macOS.dmg`**.
 3. Arrastra el icono de **BibleStudy** hacia la carpeta **Aplicaciones**.
 4. ¡Listo! La app está completamente optimizada para Apple Silicon (M1/M2/M3/M4) e Intel.
 
@@ -117,7 +117,7 @@ swift build -c release
 # 3. O crear el instalador .DMG completo con un solo comando:
 ./scripts/build_dmg.sh
 ```
-El archivo resultante se generará en `dist/BibleStudy-1.1.0-macOS.dmg`.
+El archivo resultante se generará en `dist/BibleStudy-1.1.1-macOS.dmg`.
 
 ---
 
