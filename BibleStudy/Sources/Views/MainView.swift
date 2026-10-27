@@ -18,6 +18,7 @@ public struct MainView: View {
                         .inspectorColumnWidth(min: 280, ideal: 320, max: 400)
                 }
         }
+        .preferredColorScheme(appState.currentTheme.colorScheme)
         .toolbar {
             toolbarContent
         }
@@ -37,6 +38,13 @@ public struct MainView: View {
                 appState.isNotesInspectorPresented.toggle()
             }
             .keyboardShortcut("n", modifiers: [.option, .command])
+            .opacity(0)
+        )
+        .background(
+            Button("") {
+                appState.toggleTheme()
+            }
+            .keyboardShortcut("t", modifiers: [.option, .command])
             .opacity(0)
         )
     }
@@ -83,6 +91,21 @@ public struct MainView: View {
                 }
             }
             .help(appState.isRedLetterEnabled ? "Palabras de Jesús resaltadas en rojo (activado)" : "Resaltado de palabras de Jesús desactivado")
+
+            // Theme Toggle Button (Light / Dark / Auto)
+            Menu {
+                Picker("Tema", selection: $appState.currentTheme) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Label(theme.rawValue, systemImage: theme.iconName)
+                            .tag(theme)
+                    }
+                }
+            } label: {
+                Image(systemName: appState.currentTheme.iconName)
+            } primaryAction: {
+                appState.toggleTheme()
+            }
+            .help("Tema de la app (Clic para alternar Claro / Oscuro, o desplegar para Automático • ⌥⌘T)")
 
             // Typography Popover
             Button {

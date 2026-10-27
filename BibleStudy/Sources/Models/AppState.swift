@@ -8,6 +8,30 @@ public enum ReaderFontDesign: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
 }
 
+public enum AppTheme: String, CaseIterable, Identifiable {
+    case system = "Automático (Sistema)"
+    case light = "Claro"
+    case dark = "Oscuro"
+
+    public var id: String { rawValue }
+
+    public var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+
+    public var iconName: String {
+        switch self {
+        case .system: return "circle.righthalf.filled"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+}
+
 @MainActor
 public final class AppState: ObservableObject {
     @Published public var allBooks: [BibleBook] = []
@@ -22,6 +46,12 @@ public final class AppState: ObservableObject {
     @Published public var fontSize: Double = 16.0
     @Published public var fontDesign: ReaderFontDesign = .serif
 
+    @Published public var currentTheme: AppTheme {
+        didSet {
+            UserDefaults.standard.set(currentTheme.rawValue, forKey: "appTheme")
+        }
+    }
+
     @Published public var isNotesInspectorPresented: Bool = true
     @Published public var selectedNoteForEditing: StudyNote? = nil
     @Published public var isCreatingNewNote: Bool = false
@@ -34,6 +64,14 @@ public final class AppState: ObservableObject {
     @Published public var sortedVerseNumbers: [Int] = []
 
     public init() {
+        // Load saved theme or default to system
+        if let savedTheme = UserDefaults.standard.string(forKey: "appTheme"),
+           let theme = AppTheme(rawValue: savedTheme) {
+            self.currentTheme = theme
+        } else {
+            self.currentTheme = .system
+        }
+
         let books = BibleDatabase.shared.fetchAllBooks()
         self.allBooks = books
 
@@ -59,6 +97,17 @@ public final class AppState: ObservableObject {
         }
 
         loadCurrentChapter()
+    }
+
+    public func toggleTheme() {
+        switch currentTheme {
+        case .system:
+            currentTheme = .light
+        case .light:
+            currentTheme = .dark
+        case .dark:
+            currentTheme = .system
+        }
     }
 
     public func loadCurrentChapter() {
