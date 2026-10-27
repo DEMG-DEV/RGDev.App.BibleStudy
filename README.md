@@ -138,6 +138,17 @@ El proyecto incluye dos flujos de trabajo automatizados listos para producción:
 
 ---
 
+## 🤝 Comunidad y Contribución
+
+¡Las contribuciones de la comunidad son bienvenidas y apreciadas!
+
+- 📘 [Guía de Contribución](CONTRIBUTING.md) — Requisitos del entorno, arquitectura y flujo de Git.
+- 📜 [Código de Conducta](CODE_OF_CONDUCT.md) — Normas de convivencia comunitaria.
+- 🛡️ [Política de Seguridad](SECURITY.md) — Reporte responsable de vulnerabilidades.
+- 📝 [Historial de Cambios](CHANGELOG.md) — Registro detallado de cada versión (SemVer).
+
+---
+
 ## 📜 Licencia
 
-Distribuido bajo la Licencia **MIT**. Consulta `LICENSE` para más información. Desarrollado con dedicación por [RGDev](https://github.com/RGDev).
+Distribuido bajo la Licencia **MIT**. Consulta [LICENSE](LICENSE) para más información. Desarrollado con dedicación por [DEMG-DEV](https://github.com/DEMG-DEV).
