@@ -30,6 +30,7 @@ def main():
         "BibleStudy/Sources/Models/AppState.swift",
         "BibleStudy/Sources/Database/BibleDatabase.swift",
         "BibleStudy/Sources/Database/StudyNotesStore.swift",
+        "BibleStudy/Sources/Database/AppleNotesBridge.swift",
         "BibleStudy/Sources/Views/MainView.swift",
         "BibleStudy/Sources/Views/SidebarView.swift",
         "BibleStudy/Sources/Views/ChapterPickerPopover.swift",

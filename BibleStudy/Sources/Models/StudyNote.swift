@@ -1,6 +1,6 @@
 import Foundation
 
-public struct StudyNote: Identifiable, Hashable, Codable {
+public struct StudyNote: Identifiable, Hashable, Codable, Sendable {
     public let id: UUID
     public var createdAt: Date
     public var updatedAt: Date

@@ -7,6 +7,7 @@ public struct StudyNotesInspectorView: View {
     @State private var filterCurrentChapterOnly: Bool = false
     @State private var selectedTopicFilter: String = "Todos"
     @State private var editingNote: StudyNote? = nil
+    @State private var isSyncingAll: Bool = false
 
     private var displayedDayGroups: [(dayTitle: String, notes: [StudyNote])] {
         let baseGroups = notesStore.notesGroupedByDay()
@@ -39,7 +40,7 @@ public struct StudyNotesInspectorView: View {
 
             Divider()
 
-            // Filters bar
+            // Filters & Apple Notes Sync bar
             filterBar
 
             Divider()
@@ -50,6 +51,11 @@ public struct StudyNotesInspectorView: View {
             } else {
                 notesListView
             }
+
+            Divider()
+
+            // Bottom Apple Notes sync status
+            appleNotesFooter
         }
         .frame(minWidth: 280, idealWidth: 320)
         .background(Color(nsColor: .windowBackgroundColor))
@@ -161,7 +167,6 @@ public struct StudyNotesInspectorView: View {
             // Verse Reference & Time
             HStack {
                 Button {
-                    // Navigate to verse
                     jumpToNoteVerse(note)
                 } label: {
                     HStack(spacing: 3) {
@@ -183,14 +188,30 @@ public struct StudyNotesInspectorView: View {
                     .foregroundColor(.secondary)
             }
 
-            // Topic Badge
-            if !note.topic.isEmpty {
-                Text(note.topic)
-                    .font(.system(size: 10, weight: .semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.secondary.opacity(0.12))
-                    .cornerRadius(4)
+            // Topic Badge & Apple Notes Sync Badge
+            HStack(spacing: 6) {
+                if !note.topic.isEmpty {
+                    Text(note.topic)
+                        .font(.system(size: 10, weight: .semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.secondary.opacity(0.12))
+                        .cornerRadius(4)
+                }
+
+                Spacer()
+
+                // Apple Notes indicator
+                if notesStore.isAutoSyncWithAppleNotesEnabled {
+                    HStack(spacing: 2) {
+                        Image(systemName: "applelogo")
+                            .font(.system(size: 9))
+                        Text("Notas")
+                            .font(.system(size: 9, weight: .medium))
+                    }
+                    .foregroundColor(.secondary.opacity(0.8))
+                    .help("Sincronizada con la carpeta 'Estudio Bíblico' en Notas de Apple")
+                }
             }
 
             // Executive Summary Callout
@@ -230,6 +251,32 @@ public struct StudyNotesInspectorView: View {
         .onTapGesture {
             editingNote = note
         }
+    }
+
+    private var appleNotesFooter: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "applelogo")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Notas de Apple (iCloud)")
+                    .font(.system(size: 10, weight: .semibold))
+                Text("Carpeta: Estudio Bíblico")
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            Toggle("", isOn: $notesStore.isAutoSyncWithAppleNotesEnabled)
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                .help("Activar o desactivar guardado automático silencioso en Notas de Apple")
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
     }
 
     private var emptyNotesView: some View {
@@ -333,6 +380,17 @@ public struct NoteEditorSheet: View {
                 }
             }
 
+            // Sync notification badge
+            HStack(spacing: 4) {
+                Image(systemName: "applelogo")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                Text("Se guardará automáticamente en la carpeta **Estudio Bíblico** de Notas de Apple.")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+
             Divider()
 
             // Footer Actions
@@ -358,6 +416,6 @@ public struct NoteEditorSheet: View {
             }
         }
         .padding(20)
-        .frame(width: 480, height: 420)
+        .frame(width: 480, height: 440)
     }
 }

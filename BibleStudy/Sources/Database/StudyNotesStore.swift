@@ -6,6 +6,7 @@ public final class StudyNotesStore: ObservableObject {
     public static let shared = StudyNotesStore()
 
     @Published public private(set) var notes: [StudyNote] = []
+    @Published public var isAutoSyncWithAppleNotesEnabled: Bool = true
 
     private var fileURL: URL?
 
@@ -19,8 +20,6 @@ public final class StudyNotesStore: ObservableObject {
 
     private func determineStorageURL() -> URL {
         let fileManager = FileManager.default
-
-        // Candidates in order of preference
         var candidateDirs: [URL] = []
 
         if let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
@@ -40,7 +39,6 @@ public final class StudyNotesStore: ObservableObject {
         for dir in candidateDirs {
             do {
                 try fileManager.createDirectory(at: dir, withIntermediateDirectories: true, attributes: nil)
-                // Test writability
                 let testFile = dir.appendingPathComponent(".write_test")
                 try "ok".write(to: testFile, atomically: true, encoding: .utf8)
                 try fileManager.removeItem(at: testFile)
@@ -51,7 +49,6 @@ public final class StudyNotesStore: ObservableObject {
             }
         }
 
-        // Fallback to memory-like path in temp
         let fallback = fileManager.temporaryDirectory.appendingPathComponent("study_notes.json")
         return fallback
     }
@@ -91,11 +88,27 @@ public final class StudyNotesStore: ObservableObject {
         }
         notes.sort(by: { $0.createdAt > $1.createdAt })
         saveToDisk()
+
+        // Sincronización automática silenciosa con Notas de Apple
+        if isAutoSyncWithAppleNotesEnabled {
+            AppleNotesBridge.shared.syncNote(note: note)
+        }
     }
 
     public func delete(id: UUID) {
         notes.removeAll(where: { $0.id == id })
         saveToDisk()
+
+        if isAutoSyncWithAppleNotesEnabled {
+            AppleNotesBridge.shared.deleteNote(noteId: id)
+        }
+    }
+
+    public func syncAllNotesToAppleNotes(completion: (() -> Void)? = nil) {
+        for note in notes {
+            AppleNotesBridge.shared.syncNote(note: note)
+        }
+        completion?()
     }
 
     public func notesGroupedByDay() -> [(dayTitle: String, notes: [StudyNote])] {
