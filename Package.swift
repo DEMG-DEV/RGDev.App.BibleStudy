@@ -23,7 +23,10 @@ let package = Package(
             dependencies: [],
             path: "BibleStudy/Sources",
             resources: [
-                .copy("Resources/Bibles.sqlite")
+                .copy("Resources/Bibles.sqlite"),
+                .copy("Resources/AppIcon.png"),
+                .copy("Resources/AppIcon.icns"),
+                .copy("Resources/Assets.xcassets")
             ],
             linkerSettings: [
                 .linkedLibrary("sqlite3"),

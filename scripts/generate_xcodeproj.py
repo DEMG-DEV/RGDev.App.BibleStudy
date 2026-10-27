@@ -42,7 +42,8 @@ def main():
 
     resources = [
         "BibleStudy/Sources/Resources/Bibles.sqlite",
-        "BibleStudy/Sources/Resources/AppIcon.icns"
+        "BibleStudy/Sources/Resources/AppIcon.icns",
+        "BibleStudy/Sources/Resources/Assets.xcassets"
     ]
 
     # UUIDs
@@ -112,7 +113,12 @@ def main():
     for s, (f_uuid, fname) in source_file_refs.items():
         pbx.append(f"\t\t{f_uuid} /* {fname} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = \"{s}\"; sourceTree = \"<group>\"; }};")
     for r, (rf_uuid, rname) in resource_file_refs.items():
-        ftype = "image.icns" if r.endswith(".icns") else "file"
+        if r.endswith(".icns"):
+            ftype = "image.icns"
+        elif r.endswith(".xcassets"):
+            ftype = "folder.assetcatalog"
+        else:
+            ftype = "file"
         pbx.append(f"\t\t{rf_uuid} /* {rname} */ = {{isa = PBXFileReference; lastKnownFileType = {ftype}; path = \"{r}\"; sourceTree = \"<group>\"; }};")
     pbx.append("/* End PBXFileReference section */\n")
 
@@ -294,10 +300,8 @@ def main():
     pbx.append("\t\t\t\tCOMBINE_HIDPI_IMAGES = YES;")
     pbx.append("\t\t\t\tCURRENT_PROJECT_VERSION = 1;")
     pbx.append("\t\t\t\tENABLE_HARDENED_RUNTIME = YES;")
-    pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = YES;")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = \"BibleStudy\";")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = \"public.app-category.reference\";")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_NSHumanReadableCopyright = \"Copyright © 2026 RGDev. All rights reserved.\";")
+    pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = NO;")
+    pbx.append("\t\t\t\tINFOPLIST_FILE = \"BibleStudy/Info.plist\";")
     pbx.append("\t\t\t\tLD_RUNPATH_SEARCH_PATHS = \"$(inherited) @executable_path/../Frameworks\";")
     pbx.append("\t\t\t\tMARKETING_VERSION = 1.0;")
     pbx.append("\t\t\t\tOTHER_LDFLAGS = (\"$(inherited)\", \"-lsqlite3\");")
@@ -317,10 +321,8 @@ def main():
     pbx.append("\t\t\t\tCOMBINE_HIDPI_IMAGES = YES;")
     pbx.append("\t\t\t\tCURRENT_PROJECT_VERSION = 1;")
     pbx.append("\t\t\t\tENABLE_HARDENED_RUNTIME = YES;")
-    pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = YES;")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = \"BibleStudy\";")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = \"public.app-category.reference\";")
-    pbx.append("\t\t\t\tINFOPLIST_KEY_NSHumanReadableCopyright = \"Copyright © 2026 RGDev. All rights reserved.\";")
+    pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = NO;")
+    pbx.append("\t\t\t\tINFOPLIST_FILE = \"BibleStudy/Info.plist\";")
     pbx.append("\t\t\t\tLD_RUNPATH_SEARCH_PATHS = \"$(inherited) @executable_path/../Frameworks\";")
     pbx.append("\t\t\t\tMARKETING_VERSION = 1.0;")
     pbx.append("\t\t\t\tOTHER_LDFLAGS = (\"$(inherited)\", \"-lsqlite3\");")
