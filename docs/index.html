@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BibleStudy — Aplicación Nativa de Estudio Bíblico para macOS</title>
+  <meta name="description" content="La experiencia definitiva de lectura y estudio bíblico en macOS. 4 versiones paralelas (RVR1960, NTV, TLA, NVI), palabras de Jesús en rojo, sincronización con Notas de Apple y motor SQLite offline.">
+  <link rel="icon" type="image/png" href="assets/AppIcon.png">
+  
+  <style>
+    :root {
+      --bg: #090c10;
+      --card-bg: rgba(22, 27, 34, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #2f81f7;
+      --accent-glow: rgba(47, 129, 247, 0.35);
+      --gold: #d4af37;
+      --red-letter: #ff6b6b;
+      --text-main: #f0f6fc;
+      --text-muted: #8b949e;
+      --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      --font-serif: "New York", "Charter", "Georgia", serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-system);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Background Glow */
+    .ambient-glow {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(30, 64, 175, 0.25) 0%, rgba(13, 22, 45, 0.1) 50%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(9, 12, 16, 0.75);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 1.15rem;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-main);
+    }
+
+    .btn-nav {
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 980px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      box-shadow: 0 0 16px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(47, 129, 247, 0.12);
+      border: 1px solid rgba(47, 129, 247, 0.3);
+      color: #58a6ff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: 0.3px;
+    }
+
+    .hero-icon {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto 28px;
+      display: block;
+      filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.6));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -1.2px;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      color: #090c10;
+      padding: 14px 28px;
+      border-radius: 980px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.25s;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      padding: 14px 28px;
+      border-radius: 980px;
+      font-weight: 600;
+      font-size: 1.05rem;
+      text-decoration: none;
+      border: 1px solid var(--card-border);
+      transition: all 0.25s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .meta-tagline {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* macOS Window Mockup */
+    .mockup-container {
+      max-width: 1060px;
+      margin: 20px auto 80px;
+      padding: 0 20px;
+    }
+
+    .window {
+      background: #161b22;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .window-header {
+      background: #0d1117;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .window-title {
+      flex: 1;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .mockup-content {
+      display: grid;
+      grid-template-columns: 240px 1fr 280px;
+      min-height: 440px;
+      background: #090c10;
+    }
+
+    .mockup-sidebar {
+      background: #0d1117;
+      border-right: 1px solid var(--card-border);
+      padding: 16px;
+      font-size: 0.85rem;
+    }
+
+    .sidebar-section {
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-item {
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-item.active {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .mockup-reader {
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .reader-title {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .reader-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .parallel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .verse-col {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .version-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .wj {
+      color: var(--red-letter);
+      font-weight: 500;
+    }
+
+    .mockup-inspector {
+      background: #0d1117;
+      border-left: 1px solid var(--card-border);
+      padding: 16px;
+      font-size: 0.85rem;
+    }
+
+    .note-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .note-ref {
+      font-weight: 700;
+      color: #58a6ff;
+      font-size: 0.8rem;
+    }
+
+    .apple-sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      color: #3fb950;
+      margin-top: 6px;
+    }
+
+    /* Features Grid */
+    .features-section {
+      max-width: 1100px;
+      margin: 60px auto 100px;
+      padding: 0 20px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.25s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(47, 129, 247, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* Versions comparison table */
+    .table-section {
+      max-width: 960px;
+      margin: 0 auto 100px;
+      padding: 0 20px;
+    }
+
+    .versions-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .versions-table th, .versions-table td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .versions-table th {
+      background: rgba(255, 255, 255, 0.04);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .versions-table td {
+      font-size: 0.95rem;
+    }
+
+    .badge-trad {
+      background: rgba(212, 175, 55, 0.15);
+      color: #e5c158;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(180deg, rgba(22, 27, 34, 0.5) 0%, rgba(30, 58, 138, 0.2) 100%);
+      border-top: 1px solid var(--card-border);
+      border-bottom: 1px solid var(--card-border);
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .cta-section h2 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+
+    /* Footer */
+    footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 860px) {
+      .hero h1 { font-size: 2.5rem; }
+      .mockup-content { grid-template-columns: 1fr; }
+      .mockup-sidebar, .mockup-inspector { display: none; }
+      .parallel-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#" class="brand">
+      <img src="assets/AppIcon.png" alt="BibleStudy Logo">
+      BibleStudy
+    </a>
+    <div class="nav-links">
+      <a href="#caracteristicas" class="nav-link">Características</a>
+      <a href="#versiones" class="nav-link">Versiones</a>
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy" class="nav-link" target="_blank">GitHub</a>
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest" class="btn-nav">Descargar .DMG</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span>✨ Versión 1.1.0 Disponible</span> &bull; <span>macOS Sonoma & Sequoia</span>
+    </div>
+
+    <img src="assets/AppIcon.png" alt="BibleStudy macOS Icon" class="hero-icon">
+
+    <h1>La experiencia definitiva de estudio bíblico en tu Mac.</h1>
+    <p>
+      Diseñada en Swift 6 nativo con las directrices HIG de Apple. 4 versiones paralelas sincronizadas, palabras de Jesús en rojo, notas automáticas en Notas de Apple y motor SQLite 100% offline.
+    </p>
+
+    <div class="hero-actions">
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest" class="btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Descargar BibleStudy.dmg
+      </a>
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy" class="btn-secondary" target="_blank">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        Ver en GitHub
+      </a>
+    </div>
+
+    <div class="meta-tagline">
+      Gratis &bull; Código Abierto &bull; Sin Publicidad &bull; Sin Recopilación de Datos &bull; Universal arm64
+    </div>
+  </section>
+
+  <!-- Interactive macOS Window Mockup -->
+  <div class="mockup-container">
+    <div class="window">
+      <div class="window-header">
+        <div class="traffic-lights">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+        </div>
+        <div class="window-title">BibleStudy — Juan 3:16 (RVR1960 / NTV)</div>
+      </div>
+      <div class="mockup-content">
+        <!-- Sidebar Mockup -->
+        <div class="mockup-sidebar">
+          <div class="sidebar-section">Nuevo Testamento</div>
+          <div class="sidebar-item">Mateo</div>
+          <div class="sidebar-item">Marcos</div>
+          <div class="sidebar-item">Lucas</div>
+          <div class="sidebar-item active">Juan &bull; Cap. 3</div>
+          <div class="sidebar-item">Hechos</div>
+          <div class="sidebar-item">Romanos</div>
+        </div>
+
+        <!-- Reader Mockup -->
+        <div class="mockup-reader">
+          <div class="reader-title">Juan</div>
+          <div class="reader-subtitle">Capítulo 3 &bull; El nuevo nacimiento</div>
+          <div class="parallel-grid">
+            <div class="verse-col">
+              <span class="version-tag">RVR1960</span>
+              <p><strong>16</strong> <span class="wj">Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito, para que todo aquel que en él cree, no se pierda, mas tenga vida eterna.</span></p>
+            </div>
+            <div class="verse-col">
+              <span class="version-tag">NTV</span>
+              <p><strong>16</strong> <span class="wj">»Pues Dios amó tanto al mundo que dio a su único Hijo, para que todo el que crea en él no se pierda, sino que tenga vida eterna.</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspector Mockup -->
+        <div class="mockup-inspector">
+          <div class="sidebar-section">Notas de Estudio</div>
+          <div class="note-card">
+            <div class="note-ref">Juan 3:16 &bull; Reflexión</div>
+            <p style="font-size: 0.8rem; color: #c9d1d9; margin-top: 4px;">Análisis exegético del término <em>ágape</em>. La iniciativa es 100% divina...</p>
+            <div class="apple-sync-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              Sincronizado en Notas de Apple
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <section class="features-section" id="caracteristicas">
+    <div class="section-header">
+      <h2>Diseñada para el estudio riguroso y diario</h2>
+      <p>Todo lo que necesitas para meditar en las Escrituras con elegancia y profundidad.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <h3>Lector Paralelo Sincronizado</h3>
+        <p>Estudia 1, 2, 3 o las 4 versiones a la vez en columnas perfectamente alineadas versículo por versículo. Nunca perderás la referencia al desplazarte.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>Palabras de Jesús en Rojo</h3>
+        <p>Identificación gramatical estricta mediante etiquetas exegéticas. Distingue sin error las palabras habladas por el Señor del relato del narrador.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h3>Notas sincronizadas con Apple Notes</h3>
+        <p>Tus notas se guardan localmente y se replican silenciosamente en tu carpeta <em>«Estudio Bíblico»</em> de Notas de Apple con iCloud para tenerlas en tu iPhone y iPad.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Selección Múltiple de Versículos</h3>
+        <p>Selecciona bloques continuos con <code>⇧ Mayús + Clic</code> o versículos alternos con <code>⌘ Cmd + Clic</code> para crear notas consolidadas o copiar pasajes enteros.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Búsqueda Instantánea FTS5</h3>
+        <p>Motor SQLite Full-Text Search de alta velocidad. Salta a cualquier pasaje escribiendo citas abreviadas (<code>Jn 3:16</code>, <code>Sal 23</code>) con el Omnibox <code>⌘K</code>.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>100% Offline y Privada</h3>
+        <p>Toda la base de datos de 4 traducciones viene embebida en tu Mac. Sin cuentas, sin rastreo, sin telemetría y sin necesidad de conexión a internet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Versions Table -->
+  <section class="table-section" id="versiones">
+    <div class="section-header">
+      <h2>4 Traducciones Bíblicas Esenciales</h2>
+      <p>Equilibrio perfecto entre tradición formal, fidelidad exegética y claridad contemporánea.</p>
+    </div>
+
+    <table class="versions-table">
+      <thead>
+        <tr>
+          <th>Versión</th>
+          <th>Tipo de Traducción</th>
+          <th>Propósito & Enfoque</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>RVR1960</strong><br><small style="color:var(--text-muted)">Reina-Valera 1960</small></td>
+          <td><span class="badge-trad">Equivalencia Formal</span></td>
+          <td>El estándar hispano tradicional para memorización y liturgia eclesiástica.</td>
+        </tr>
+        <tr>
+          <td><strong>NTV</strong><br><small style="color:var(--text-muted)">Nueva Traducción Viviente</small></td>
+          <td><span class="badge-trad">Equivalencia Dinámica</span></td>
+          <td>Máxima claridad expresiva y belleza literaria para devocionales y lectura fluida.</td>
+        </tr>
+        <tr>
+          <td><strong>NVI</strong><br><small style="color:var(--text-muted)">Nueva Versión Internacional</small></td>
+          <td><span class="badge-trad">Equivalencia Óptima</span></td>
+          <td>Equilibrio moderno entre exactitud palabra por palabra y pensamiento por pensamiento.</td>
+        </tr>
+        <tr>
+          <td><strong>TLA</strong><br><small style="color:var(--text-muted)">Traducción en Lenguaje Actual</small></td>
+          <td><span class="badge-trad">Lenguaje Directo</span></td>
+          <td>Comprensión inmediata ideal para nuevos lectores y enseñanza pedagógica.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CTA Download -->
+  <section class="cta-section">
+    <h2>Comienza tu estudio bíblico hoy</h2>
+    <p>Descarga la aplicación nativa en formato .dmg listo para arrastrar a tu carpeta de Aplicaciones.</p>
+    <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest" class="btn-primary" style="font-size: 1.15rem; padding: 16px 36px;">
+      Descargar BibleStudy para macOS
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div>
+      <strong>BibleStudy for macOS</strong> &bull; Desarrollada por RGDev
+    </div>
+    <div>
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy">Repositorio de Código Abierto</a> &bull;
+      <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases">Versiones Anteriores</a>
+    </div>
+  </footer>
+
+</body>
+</html>

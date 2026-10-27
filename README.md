@@ -1,119 +1,143 @@
-# RGDev.App.BibleStudy 📖
-### Aplicación Nativa de Lectura y Estudio Bíblico para macOS (v1.1.0)
+<p align="center">
+  <img src="BibleStudy/Sources/Resources/AppIcon.png" alt="BibleStudy Logo" width="160" />
+</p>
 
-Aplicación nativa para macOS desarrollada en **Swift 6** y **SwiftUI**, diseñada con estricto apego a las **Human Interface Guidelines (HIG) de Apple**. Permite estudiar y contrastar de forma paralela las **4 versiones más utilizadas en español**, con navegación física canónica, selección múltiple de versículos, sincronización directa con **Notas de Apple**, resaltado exacto de las **Palabras de Jesús en rojo** (*Red Letter Edition*), concordancias FTS5 y un panel cronológico de notas de estudio.
+<h1 align="center">BibleStudy para macOS</h1>
 
----
+<p align="center">
+  <strong>La experiencia definitiva, nativa y sin distracciones de estudio bíblico en tu Mac.</strong>
+</p>
 
-## 🌟 Características Principales
+<p align="center">
+  <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest"><img src="https://img.shields.io/badge/Versi%C3%B3n-v1.1.0-blue.svg?style=flat-square" alt="Version"></a>
+  <img src="https://img.shields.io/badge/Plataforma-macOS%2014%20%7C%2015%2B%20(Sonoma%20%7C%20Sequoia)-black?style=flat-square&logo=apple" alt="macOS">
+  <img src="https://img.shields.io/badge/Swift-6.0-F05138.svg?style=flat-square&logo=swift" alt="Swift 6">
+  <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20Apple%20HIG-5856D6.svg?style=flat-square" alt="SwiftUI">
+  <img src="https://img.shields.io/badge/Motor-SQLite%20FTS5%20Offline-003B57.svg?style=flat-square&logo=sqlite" alt="SQLite">
+  <img src="https://img.shields.io/badge/Privacidad-100%25%20Offline%20%26%20Zero--Telemetry-success.svg?style=flat-square" alt="Privacidad">
+  <a href="https://demg-dev.github.io/RGDev.App.BibleStudy/"><img src="https://img.shields.io/badge/Web-GitHub%20Pages-informational.svg?style=flat-square" alt="Landing Page"></a>
+</p>
 
-### 1. Las 4 Versiones Bíblicas Esenciales
-- **RVR1960** — *Reina-Valera 1960*: Equivalencia formal tradicional.
-- **NTV** — *Nueva Traducción Viviente*: Equivalencia dinámica clara y contemporánea.
-- **TLA** — *Traducción en Lenguaje Actual*: Lenguaje directo y comprensión inmediata.
-- **NVI** — *Nueva Versión Internacional*: Equilibrio formal y exegético moderno.
-- *Visualización simultánea:* Lee 1, 2, 3 o las 4 versiones a la vez en columnas paralelas sincronizadas.
-
-### 2. Selección Múltiple de Versículos y Barra de Acción Flotante
-- **Modos de selección nativos de macOS:**
-  - `⇧ Mayús + Clic`: Selección de rangos continuos (ej. `1 Pedro 4:7-10`).
-  - `⌘ Cmd + Clic`: Selección discontinua de versículos específicos (ej. `Juan 3:16, 18, 20`).
-  - Indicador circular en cada versículo para selección sin necesidad de teclado.
-- **Barra Flotante Inferior (Floating Action Bar):** Aparece automáticamente con animación fluida al seleccionar versículos, permitiendo:
-  - Visualizar la cita formateada y el conteo de versículos.
-  - **Crear Nota** con el pasaje pre-citado y estructurado automáticamente.
-  - **Copiar** el texto de todos los versículos seleccionados con su cita al portapapeles.
-  - **Deseleccionar** con un solo clic.
-
-### 3. Sincronización Automática con Notas de Apple (`Notes.app`)
-- Puente nativo en segundo plano (`AppleNotesBridge`) mediante AppleScript asíncrono.
-- Crea automáticamente la carpeta **`Estudio Bíblico`** en la cuenta principal de iCloud / Mac del usuario.
-- Guarda y actualiza silenciosamente cada nota de estudio sin duplicados, rastreando su identificador interno (`appleNoteId`) y referencia visible `[ref:UUID]`.
-- Conmutador en el pie del inspector para activar o pausar la sincronización en cualquier momento.
-
-### 4. Selector de Temas y Resaltado de Palabras de Jesús
-- **Conmutador de Temas (Claro / Oscuro / Sistema):** Atajo `⌥⌘T` o menú superior con persistencia automática en `UserDefaults`.
-- **Palabras de Jesús en Rojo (*Red Letter Edition*):** Marcado exacto por fragmento y cláusula mediante etiquetas `<wj>...</wj>`, distinguiendo estrictamente el diálogo pronunciado de la narración introductoria.
-
-### 5. Navegación Estilo "Biblia Física"
-- **Sidebar Canónico:**
-  - **Antiguo Testamento (39 libros):** *Pentateuco*, *Históricos*, *Poéticos y Sabiduría*, *Profetas Mayores*, *Profetas Menores*.
-  - **Nuevo Testamento (27 libros):** *Evangelios*, *Historia*, *Epístolas Paulinas*, *Epístolas Generales*, *Profecía*.
-- **Selector de Uñero (Thumb Index):** Al tocar cualquier libro o número de capítulo, se despliega una cuadrícula interactiva (`1, 2, 3...`) para saltar a cualquier capítulo en 1 clic.
-- **Paso de Páginas Continuo:** Botones inferiores para avanzar o retroceder de capítulo fluidamente.
-
-### 6. Panel de Notas de Estudio (Cronológico e Inspector Nativo)
-- Panel derecho nativo (`.inspector(isPresented:)`) accesible con el atajo `⌥⌘N`.
-- **Agrupación cronológica automática:** Organizado por día (*"Hoy"*, *"Ayer"*, *"Lunes, 26 de Octubre"*...) con la hora exacta registrada (*"18:05"*).
-- **Campos de estudio completos:**
-  - Versículo o pasaje anclado (ej. `1 Pedro 4:7-10`) con salto directo al hacer clic en la nota.
-  - Traducciones activas utilizadas durante el estudio.
-  - Tema / Doctrina (ej. *Salvación, Gracia, Justificación, Promesa*).
-  - Resumen ejecutivo destacado (1-2 líneas clave).
-  - Cuerpo detallado con editor enriquecido y citas automáticas.
-
-### 7. Motor de Búsqueda FTS5 y Omnibox (`⌘K`)
-- **Detector inteligente de citas:** Escribe `Jn 3:16`, `Sal 23`, `1Co 13:4`, `Gen 1` para viajar inmediatamente al pasaje.
-- **Búsqueda libre Full-Text:** Búsqueda instantánea en milisegundos ignorando acentos y mayúsculas (`unicode61`) con previsualización en negrita del contexto.
+<p align="center">
+  <a href="#-descarga-e-instalación">Descargar .DMG</a> &bull;
+  <a href="#-innovaciones-principales">Características</a> &bull;
+  <a href="#-las-4-versiones-bíblicas">Versiones</a> &bull;
+  <a href="#-atajos-de-teclado-para-usuarios-pro">Atajos de Teclado</a> &bull;
+  <a href="https://demg-dev.github.io/RGDev.App.BibleStudy/">Página Web Oficial</a>
+</p>
 
 ---
 
-## 🛠️ Estructura del Proyecto
+## 💡 ¿Por qué BibleStudy?
 
-```text
-RGDev.App.BibleStudy/
-├── Package.swift                             # Manifiesto Swift Package nativo
-├── scripts/
-│   ├── build_bibles_db.py                    # Generador y etiquetador del corpus bíblico
-│   └── generate_xcodeproj.py                 # Generador del proyecto Xcode nativo
-├── BibleStudy/
-│   ├── Info.plist                            # Metadatos del bundle (com.rgdev.BibleStudy)
-│   └── Sources/
-│       ├── App/
-│       │   └── BibleStudyApp.swift           # Punto de entrada @main con inyección de dock icon
-│       ├── Models/
-│       │   ├── BibleBook.swift               # Modelo canónico y categorías físicas
-│       │   ├── BibleVerse.swift              # Modelo de versículo y resultados FTS
-│       │   ├── StudyNote.swift               # Modelo de notas con timestamp, tema y Apple Notes ID
-│       │   └── AppState.swift                # Estado reactivo central (@ObservableObject) y selección múltiple
-│       ├── Database/
-│       │   ├── BibleDatabase.swift           # Driver SQLite nativo con FTS5
-│       │   ├── StudyNotesStore.swift         # Persistencia local de notas con fallback resiliente
-│       │   └── AppleNotesBridge.swift        # Puente AppleScript para sincronización con Notes.app
-│       ├── Views/
-│       │   ├── MainView.swift                # NavigationSplitView + Toolbar HIG
-│       │   ├── SidebarView.swift             # Sidebar categorizado estilo Biblia física
-│       │   ├── ChapterPickerPopover.swift    # Selector rápido estilo uñero
-│       │   ├── ParallelReaderView.swift      # Lector multicolumna con selección múltiple y barra flotante
-│       │   ├── RedLetterText.swift           # Renderizador de Palabras de Jesús
-│       │   ├── OmniboxSearchView.swift       # Buscador omnibox (⌘K)
-│       │   └── StudyNotesInspectorView.swift # Inspector lateral de notas
-│       └── Resources/
-│           ├── Bibles.sqlite                 # Base de datos optimizada (RVR1960, NTV, TLA, NVI)
-│           ├── AppIcon.png                   # Ícono maestro 3D flotante (1024x1024 con transparencia)
-│           ├── AppIcon.icns                  # Paquete multi-resolución de macOS
-│           └── Assets.xcassets/              # Catálogo de activos compilados (Assets.car)
+Muchas aplicaciones bíblicas en el escritorio son portales web empaquetados en Electron: lentos, sobrecargados de suscripciones, cuentas obligatorias y rastreadores de publicidad.
+
+**BibleStudy** nació bajo una filosofía diametralmente opuesta: **crear una aplicación de primera clase puramente nativa para macOS**, diseñada en **Swift 6** y **SwiftUI**, con respeto absoluto a las *Human Interface Guidelines (HIG)* de Apple. Toda la biblioteca de 4 traducciones fundamentales, las concordancias completas y tus notas personales residen **100% offline** en tu disco duro en un motor SQLite C de alto rendimiento.
+
+---
+
+## 🌟 Innovaciones Principales
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. Lector Paralelo Sincronizado Fila por Fila (RVR1960 / NTV / TLA / NVI)    │
+│ 2. Resaltado Gramatical Exacto: Palabras de Jesús (Red Letter Edition)      │
+│ 3. Sincronización Silenciosa en Segundo Plano con Notas de Apple (iCloud)   │
+│ 4. Selección Múltiple con HUD Flotante (⇧ Mayús + Clic / ⌘ Cmd + Clic)      │
+│ 5. Uñero Canónico de Biblia Física (Thumb Index) y Salto Rápido             │
+│ 6. Motor FTS5 Omnibox (⌘K) con Reconocimiento Inteligente de Citas          │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### 1. 📖 Lector Paralelo Fila por Fila
+Compara hasta 4 versiones en columnas simultáneas sincronizadas horizontalmente versículo por versículo. Si una traducción utiliza equivalencia dinámica y fusiona cláusulas contiguas, el motor mantiene la alineación visual perfecta para que nunca pierdas el hilo del pasaje al desplazarte.
+
+### 2. 🔴 Edición con Palabras de Jesús en Rojo (*Red Letter*)
+A diferencia de los visores convencionales que colorean oraciones completas, nuestro etiquetador gramatical separa estrictamente el relato del narrador de las declaraciones pronunciadas por Jesús:
+> *«Jesús le respondió y dijo:* <span style="color:#ff6b6b">«De cierto, de cierto te digo, que el que no naciere de nuevo, no puede ver el reino de Dios.»</span> *(Jn 3:3)*
+
+El color adopta tonalidades adaptativas: **carmesí real** en Modo Claro y **coral suave** en Modo Oscuro para garantizar confort visual durante horas de estudio prolongado.
+
+### 3. 🍏 Sincronización Automática con Notas de Apple (`Notes.app`)
+Cada vez que escribes una observación exegética o devocional, el puente en segundo plano (`AppleNotesBridge`) la replica automáticamente en la carpeta **«Estudio Bíblico»** de tu cuenta de **Notas de Apple**:
+- **Continuidad Total:** Escribe en tu Mac y consulta tus notas en tu iPhone o iPad vía iCloud al instante.
+- **Deduplicación Inteligente:** Utiliza identificadores internos persistentes (`x-coredata://...`) para actualizar la misma nota sin generar duplicados al editarla.
+- **Sin Bloqueo de UI:** AppleScript asíncrono sobre hilos de utilidad que no ralentiza la interfaz.
+
+### 4. 🎯 Selección Múltiple con Barra de Acción Flotante
+- **Rangos continuos:** Haz clic en un versículo inicial y luego `⇧ Mayús + Clic` en el final para seleccionar pasajes enteros (ej. `1 Pedro 4:7-10`).
+- **Versículos alternos:** Pulsa `⌘ Cmd + Clic` en versículos específicos (ej. `Juan 3:16, 18, 20`).
+- **HUD Flotante:** Al seleccionar versículos, emerge una barra inferior con acciones directas para **Crear Nota** (con el texto pre-citado automáticamente), **Copiar Texto** o **Deseleccionar**.
+
 ---
 
-## 🚀 Cómo Abrir y Ejecutar en Xcode
+## 📚 Las 4 Versiones Bíblicas
 
-1. **Abrir en Xcode:**
-   Puedes abrir la carpeta directamente en Xcode desde la terminal:
-   ```bash
-   open Package.swift
-   ```
-   o bien:
-   ```bash
-   xed .
-   ```
-2. **Seleccionar el Esquema:**
-   En la barra superior de Xcode, selecciona el esquema **`BibleStudy`** y el destino **`My Mac`**.
-3. **Ejecutar:**
-   Presiona `⌘R` para compilar y lanzar la aplicación nativa.
+| Traducción | Nombre Completo | Tipo de Traducción | Enfoque Principal |
+| :--- | :--- | :--- | :--- |
+| **RVR1960** | *Reina-Valera 1960* | Equivalencia Formal | Precisión verbal tradicional, memorización clásica y liturgia. |
+| **NTV** | *Nueva Traducción Viviente* | Equivalencia Dinámica | Claridad contemporánea, belleza poética y comprensión inmediata. |
+| **NVI** | *Nueva Versión Internacional* | Equivalencia Óptima | Rigor académico, equilibrio exegético moderno y lectura pública. |
+| **TLA** | *Traducción en Lenguaje Actual* | Lenguaje Directo | Sencillez pedagógica y lenguaje cotidiano sin arcaísmos. |
 
-4. **Compilación desde Terminal:**
-   ```bash
-   swift build
-   ```
+---
+
+## ⚡ Atajos de Teclado para Usuarios Pro
+
+| Atajo | Acción | Descripción |
+| :---: | :--- | :--- |
+| `⌘ K` | **Buscador Omnibox** | Salta a citas (`Jn 3:16`, `Sal 23`) o busca texto con FTS5 en milisegundos. |
+| `⌥ ⌘ N` | **Alternar Notas** | Abre o repliega el inspector cronológico lateral de notas de estudio. |
+| `⌥ ⌘ T` | **Alternar Tema** | Cambia instantáneamente entre Modo Claro, Modo Oscuro y Automático. |
+| `⇧ + Clic` | **Rango de Versículos** | Selecciona un bloque continuo de versículos en el lector paralelo. |
+| `⌘ + Clic` | **Selección Discontinua** | Agrega o quita versículos individuales de la selección activa. |
+| `⌘ [` / `⌘ ]` | **Navegación de Capítulos** | Pasa al capítulo anterior o siguiente de forma continua. |
+
+---
+
+## 💾 Descarga e Instalación
+
+### Opción 1: Descargar el Instalador Oficial (.DMG)
+1. Descarga la versión más reciente desde [Releases](https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest).
+2. Abre **`BibleStudy-1.1.0-macOS.dmg`**.
+3. Arrastra el icono de **BibleStudy** hacia la carpeta **Aplicaciones**.
+4. ¡Listo! La app está completamente optimizada para Apple Silicon (M1/M2/M3/M4) e Intel.
+
+### Opción 2: Compilar desde el Código Fuente
+Requisitos: macOS 14+, Xcode 15+ o Swift 6 toolchain.
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/DEMG-DEV/RGDev.App.BibleStudy.git
+cd RGDev.App.BibleStudy
+
+# 2. Compilar con Swift Package Manager
+swift build -c release
+
+# 3. O crear el instalador .DMG completo con un solo comando:
+./scripts/build_dmg.sh
+```
+El archivo resultante se generará en `dist/BibleStudy-1.1.0-macOS.dmg`.
+
+---
+
+## 🤖 Integración Continua (CI/CD con GitHub Actions)
+
+El proyecto incluye dos flujos de trabajo automatizados listos para producción:
+
+- **`.github/workflows/build-dmg.yml`**: Compila la aplicación en runners macOS de GitHub Actions, genera el `.dmg` comprimido de distribución y lo publica automáticamente en los Releases de GitHub al crear una etiqueta (`git tag v1.1.0`).
+- **`.github/workflows/deploy-pages.yml`**: Publica automáticamente la página web promocional en **GitHub Pages** desde la carpeta `docs/`.
+
+---
+
+## 🛡️ Privacidad y Seguridad
+
+- **Cero Telemetría:** No recopilamos analíticas, identificadores de publicidad ni datos de navegación.
+- **Base de Datos Local Embebida:** `Bibles.sqlite` se almacena localmente en el paquete de la aplicación.
+- **Tus Notas son Tuyas:** Las notas se guardan en tu carpeta local de soporte de usuario (`~/Library/Application Support/RGDev.App.BibleStudy`) y en tu cuenta privada de Notas de Apple.
+
+---
+
+## 📜 Licencia
+
+Distribuido bajo la Licencia **MIT**. Consulta `LICENSE` para más información. Desarrollado con dedicación por [RGDev](https://github.com/RGDev).
