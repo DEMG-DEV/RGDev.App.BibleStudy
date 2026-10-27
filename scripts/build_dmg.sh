@@ -53,4 +53,6 @@ hdiutil create -volname "${APP_NAME}" \
                "${OUTPUT_DIR}/${DMG_NAME}"
 
 echo "✅ DMG generated successfully at: ${OUTPUT_DIR}/${DMG_NAME}"
-ls -lh "${OUTPUT_DIR}/${DMG_NAME}"
+cp "${OUTPUT_DIR}/${DMG_NAME}" "${OUTPUT_DIR}/${APP_NAME}.dmg"
+echo "✅ Also created generic alias at: ${OUTPUT_DIR}/${APP_NAME}.dmg"
+ls -lh "${OUTPUT_DIR}"/*.dmg

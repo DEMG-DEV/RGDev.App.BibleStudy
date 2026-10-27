@@ -7,11 +7,25 @@ on:
       - main
     tags:
       - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     branches:
       - master
       - main
+  release:
+    types: [published, created]
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Crear o actualizar GitHub Release'
+        required: false
+        default: true
+        type: boolean
+      tag_name:
+        description: 'Etiqueta de versión (ej. v1.1.1)'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: write
@@ -24,6 +38,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Select Xcode Version
         run: |
@@ -37,28 +53,63 @@ jobs:
           chmod +x scripts/build_dmg.sh
           ./scripts/build_dmg.sh
 
-      - name: Locate DMG File
+      - name: Locate DMG Files
         id: locate_dmg
         run: |
-          DMG_FILE=$(find dist -name "*.dmg" | head -n 1)
-          echo "DMG_PATH=${DMG_FILE}" >> $GITHUB_ENV
-          echo "DMG_FILENAME=$(basename "$DMG_FILE")" >> $GITHUB_ENV
-          echo "Found DMG: ${DMG_FILE}"
+          PRIMARY_DMG=$(find dist -name "BibleStudy-*.dmg" | head -n 1)
+          GENERIC_DMG="dist/BibleStudy.dmg"
+          echo "DMG_PATH=${PRIMARY_DMG}" >> $GITHUB_ENV
+          echo "DMG_FILENAME=$(basename "$PRIMARY_DMG")" >> $GITHUB_ENV
+          echo "Found Primary DMG: ${PRIMARY_DMG}"
+          ls -lh dist/
 
       - name: Upload DMG as Workflow Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DMG_FILENAME }}
-          path: ${{ env.DMG_PATH }}
+          path: dist/*.dmg
           if-no-files-found: error
 
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Determine Release Tag
+        id: release_info
+        run: |
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" BibleStudy/Info.plist 2>/dev/null || echo "1.1.1")
+          
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            SHOULD_RELEASE="true"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${{ github.ref_name }}"
+            SHOULD_RELEASE="true"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.tag_name }}" ]; then
+              TAG="${{ inputs.tag_name }}"
+            else
+              TAG="v${VERSION}"
+            fi
+            SHOULD_RELEASE="${{ inputs.create_release }}"
+          elif [ "${{ github.ref }}" = "refs/heads/master" ] || [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TAG="v${VERSION}"
+            SHOULD_RELEASE="true"
+          else
+            TAG=""
+            SHOULD_RELEASE="false"
+          fi
+
+          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
+          echo "SHOULD_RELEASE=${SHOULD_RELEASE}" >> $GITHUB_OUTPUT
+          echo "Resolved Tag: ${TAG} (should_release: ${SHOULD_RELEASE})"
+
+      - name: Publish or Attach DMG to GitHub Release
+        if: steps.release_info.outputs.SHOULD_RELEASE == 'true' && steps.release_info.outputs.TAG != '' && github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.DMG_PATH }}
+          tag_name: ${{ steps.release_info.outputs.TAG }}
+          name: BibleStudy ${{ steps.release_info.outputs.TAG }}
+          files: dist/*.dmg
           draft: false
           prerelease: false
+          make_latest: true
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
