@@ -80,27 +80,38 @@ public final class StudyNotesStore: ObservableObject {
     }
 
     public func save(note: StudyNote) {
+        var noteToSave = note
         if let index = notes.firstIndex(where: { $0.id == note.id }) {
-            notes[index] = note
-            notes[index].updatedAt = Date()
+            noteToSave.updatedAt = Date()
+            notes[index] = noteToSave
         } else {
-            notes.insert(note, at: 0)
+            notes.insert(noteToSave, at: 0)
         }
         notes.sort(by: { $0.createdAt > $1.createdAt })
         saveToDisk()
 
-        // Sincronización automática silenciosa con Notas de Apple
+        // Sincronización automática con Notas de Apple
         if isAutoSyncWithAppleNotesEnabled {
-            AppleNotesBridge.shared.syncNote(note: note)
+            let noteIdToMatch = noteToSave.id
+            AppleNotesBridge.shared.syncNote(note: noteToSave) { [weak self] appleId in
+                guard let self = self, let aId = appleId else { return }
+                if let idx = self.notes.firstIndex(where: { $0.id == noteIdToMatch }) {
+                    if self.notes[idx].appleNoteId != aId {
+                        self.notes[idx].appleNoteId = aId
+                        self.saveToDisk()
+                    }
+                }
+            }
         }
     }
 
     public func delete(id: UUID) {
+        let noteToDelete = notes.first(where: { $0.id == id })
         notes.removeAll(where: { $0.id == id })
         saveToDisk()
 
-        if isAutoSyncWithAppleNotesEnabled {
-            AppleNotesBridge.shared.deleteNote(noteId: id)
+        if isAutoSyncWithAppleNotesEnabled, let n = noteToDelete {
+            AppleNotesBridge.shared.deleteNote(noteId: id, appleNoteId: n.appleNoteId)
         }
     }
 

@@ -11,6 +11,7 @@ public struct StudyNote: Identifiable, Hashable, Codable, Sendable {
     public var summary: String
     public var content: String
     public var highlightColorHex: String
+    public var appleNoteId: String?
 
     public init(
         id: UUID = UUID(),
@@ -22,7 +23,8 @@ public struct StudyNote: Identifiable, Hashable, Codable, Sendable {
         topic: String = "Estudio General",
         summary: String = "",
         content: String = "",
-        highlightColorHex: String = "#FFD60A"
+        highlightColorHex: String = "#FFD60A",
+        appleNoteId: String? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -34,6 +36,7 @@ public struct StudyNote: Identifiable, Hashable, Codable, Sendable {
         self.summary = summary
         self.content = content
         self.highlightColorHex = highlightColorHex
+        self.appleNoteId = appleNoteId
     }
 
     /// Formato de hora exacta (Ej: "17:45")
@@ -44,7 +47,7 @@ public struct StudyNote: Identifiable, Hashable, Codable, Sendable {
         return formatter.string(from: createdAt)
     }
 
-    /// Título de agrupación de fecha (Ej: "Hoy, 26 de Octubre", "Ayer", etc.)
+    /// Título de agrupación de fecha (Ej: "Hoy", "Ayer", etc.)
     public var dayGroupTitle: String {
         let calendar = Calendar.current
         if calendar.isDateInToday(createdAt) {
