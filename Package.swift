@@ -1,5 +1,8 @@
 // swift-tools-version: 6.0
 import PackageDescription
+import Foundation
+
+let plistPath = Context.packageDirectory + "/BibleStudy/Info.plist"
 
 let package = Package(
     name: "BibleStudy",
@@ -23,7 +26,13 @@ let package = Package(
                 .copy("Resources/Bibles.sqlite")
             ],
             linkerSettings: [
-                .linkedLibrary("sqlite3")
+                .linkedLibrary("sqlite3"),
+                .unsafeFlags([
+                    "-Xlinker", "-sectcreate",
+                    "-Xlinker", "__TEXT",
+                    "-Xlinker", "__info_plist",
+                    "-Xlinker", plistPath
+                ])
             ]
         )
     ]

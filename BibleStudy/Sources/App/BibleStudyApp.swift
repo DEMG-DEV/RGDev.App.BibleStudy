@@ -2,6 +2,11 @@ import SwiftUI
 
 @main
 struct BibleStudyApp: App {
+    init() {
+        print("✅ Bundle ID initialized:", Bundle.main.bundleIdentifier ?? "nil")
+        NSApplication.shared.setActivationPolicy(.regular)
+    }
+
     var body: some Scene {
         WindowGroup {
             MainView()
