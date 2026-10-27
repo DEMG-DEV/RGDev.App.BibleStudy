@@ -40,7 +40,10 @@ def main():
         "BibleStudy/Sources/Views/StudyNotesInspectorView.swift"
     ]
 
-    resource_file = "BibleStudy/Sources/Resources/Bibles.sqlite"
+    resources = [
+        "BibleStudy/Sources/Resources/Bibles.sqlite",
+        "BibleStudy/Sources/Resources/AppIcon.icns"
+    ]
 
     # UUIDs
     proj_uuid = make_uuid("PROJECT_BibleStudy")
@@ -75,8 +78,14 @@ def main():
         source_file_refs[s] = (f_uuid, fname)
         source_build_refs[s] = b_uuid
 
-    res_f_uuid = make_uuid(f"FILE_REF_{resource_file}")
-    res_b_uuid = make_uuid(f"BUILD_REF_{resource_file}")
+    resource_file_refs = {}
+    resource_build_refs = {}
+    for r in resources:
+        rname = os.path.basename(r)
+        rf_uuid = make_uuid(f"FILE_REF_{r}")
+        rb_uuid = make_uuid(f"BUILD_REF_{r}")
+        resource_file_refs[r] = (rf_uuid, rname)
+        resource_build_refs[r] = rb_uuid
 
     pbx = []
     pbx.append("// !$*UTF8*$!")
@@ -92,7 +101,9 @@ def main():
     for s, b_uuid in source_build_refs.items():
         f_uuid, fname = source_file_refs[s]
         pbx.append(f"\t\t{b_uuid} /* {fname} in Sources */ = {{isa = PBXBuildFile; fileRef = {f_uuid} /* {fname} */; }};")
-    pbx.append(f"\t\t{res_b_uuid} /* Bibles.sqlite in Resources */ = {{isa = PBXBuildFile; fileRef = {res_f_uuid} /* Bibles.sqlite */; }};")
+    for r, rb_uuid in resource_build_refs.items():
+        rf_uuid, rname = resource_file_refs[r]
+        pbx.append(f"\t\t{rb_uuid} /* {rname} in Resources */ = {{isa = PBXBuildFile; fileRef = {rf_uuid} /* {rname} */; }};")
     pbx.append("/* End PBXBuildFile section */\n")
 
     # PBXFileReference
@@ -100,7 +111,9 @@ def main():
     pbx.append(f"\t\t{product_file_uuid} /* BibleStudy.app */ = {{isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BibleStudy.app; sourceTree = BUILT_PRODUCTS_DIR; }};")
     for s, (f_uuid, fname) in source_file_refs.items():
         pbx.append(f"\t\t{f_uuid} /* {fname} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = \"{s}\"; sourceTree = \"<group>\"; }};")
-    pbx.append(f"\t\t{res_f_uuid} /* Bibles.sqlite */ = {{isa = PBXFileReference; lastKnownFileType = file; path = \"{resource_file}\"; sourceTree = \"<group>\"; }};")
+    for r, (rf_uuid, rname) in resource_file_refs.items():
+        ftype = "image.icns" if r.endswith(".icns") else "file"
+        pbx.append(f"\t\t{rf_uuid} /* {rname} */ = {{isa = PBXFileReference; lastKnownFileType = {ftype}; path = \"{r}\"; sourceTree = \"<group>\"; }};")
     pbx.append("/* End PBXFileReference section */\n")
 
     # PBXFrameworksBuildPhase
@@ -142,7 +155,8 @@ def main():
     pbx.append(f"\t\t{resources_group_uuid} /* Resources */ = {{")
     pbx.append("\t\t\tisa = PBXGroup;")
     pbx.append("\t\t\tchildren = (")
-    pbx.append(f"\t\t\t\t{res_f_uuid} /* Bibles.sqlite */,")
+    for r, (rf_uuid, rname) in resource_file_refs.items():
+        pbx.append(f"\t\t\t\t{rf_uuid} /* {rname} */,")
     pbx.append("\t\t\t);")
     pbx.append("\t\t\tname = Resources;")
     pbx.append("\t\t\tsourceTree = \"<group>\";")
@@ -212,7 +226,9 @@ def main():
     pbx.append("\t\t\tisa = PBXResourcesBuildPhase;")
     pbx.append("\t\t\tbuildActionMask = 2147483647;")
     pbx.append("\t\t\tfiles = (")
-    pbx.append(f"\t\t\t\t{res_b_uuid} /* Bibles.sqlite in Resources */,")
+    for r, rb_uuid in resource_build_refs.items():
+        _, rname = resource_file_refs[r]
+        pbx.append(f"\t\t\t\t{rb_uuid} /* {rname} in Resources */,")
     pbx.append("\t\t\t);")
     pbx.append("\t\t\trunOnlyForDeploymentPostprocessing = 0;")
     pbx.append("\t\t};")
