@@ -32,6 +32,21 @@ public enum AppTheme: String, CaseIterable, Identifiable {
     }
 }
 
+public enum InspectorTab: String, CaseIterable, Identifiable {
+    case commentary = "Comentarios NTBT"
+    case notes = "Mis Notas"
+    case bookIntro = "Introducción"
+
+    public var id: String { rawValue }
+    public var icon: String {
+        switch self {
+        case .commentary: return "text.book.closed.fill"
+        case .notes: return "note.text"
+        case .bookIntro: return "book.pages"
+        }
+    }
+}
+
 @MainActor
 public final class AppState: ObservableObject {
     @Published public var allBooks: [BibleBook] = []
@@ -41,8 +56,8 @@ public final class AppState: ObservableObject {
     @Published public var selectedVerseNumbers: Set<Int> = []
     public var selectionAnchorVerse: Int? = nil
 
-    @Published public var activeVersions: [String] = ["RVR1960", "NTV"]
-    public let availableVersions: [String] = ["RVR1960", "NTV", "TLA", "NVI"]
+    @Published public var activeVersions: [String] = ["RVR1960", "NTBT"]
+    public let availableVersions: [String] = ["RVR1960", "NTV", "TLA", "NVI", "NTBT"]
 
     @Published public var isRedLetterEnabled: Bool = true
     @Published public var fontSize: Double = 16.0
@@ -55,8 +70,12 @@ public final class AppState: ObservableObject {
     }
 
     @Published public var isNotesInspectorPresented: Bool = true
+    @Published public var activeInspectorTab: InspectorTab = .commentary
     @Published public var selectedNoteForEditing: StudyNote? = nil
     @Published public var isCreatingNewNote: Bool = false
+
+    @Published public var currentChapterCommentaries: [Int: NTBTCommentary] = [:]
+    @Published public var currentBookIntro: NTBTBookIntro? = nil
 
     @Published public var searchQuery: String = ""
     @Published public var searchResults: [SearchResult] = []
@@ -123,6 +142,15 @@ public final class AppState: ObservableObject {
         )
         self.currentParallelVerses = parallel
         self.sortedVerseNumbers = parallel.keys.sorted()
+
+        // Load NTBT Commentaries and Book Introduction
+        let comms = BibleDatabase.shared.fetchNTBTCommentaries(bookNumber: selectedBook.id, chapter: selectedChapter)
+        var commMap: [Int: NTBTCommentary] = [:]
+        for c in comms {
+            commMap[c.verse] = c
+        }
+        self.currentChapterCommentaries = commMap
+        self.currentBookIntro = BibleDatabase.shared.fetchNTBTBookIntro(bookNumber: selectedBook.id)
     }
 
     public func toggleVersion(_ vid: String) {
@@ -132,8 +160,8 @@ public final class AppState: ObservableObject {
             }
         } else {
             activeVersions.append(vid)
-            // Keep consistent order: RVR1960, NTV, TLA, NVI
-            let order = ["RVR1960", "NTV", "TLA", "NVI"]
+            // Keep consistent order: RVR1960, NTV, TLA, NVI, NTBT
+            let order = ["RVR1960", "NTV", "TLA", "NVI", "NTBT"]
             activeVersions.sort {
                 (order.firstIndex(of: $0) ?? 0) < (order.firstIndex(of: $1) ?? 0)
             }
@@ -224,6 +252,19 @@ public final class AppState: ObservableObject {
     public func selectAllVersesInChapter() {
         selectedVerseNumbers = Set(sortedVerseNumbers)
         highlightedVerseNumber = sortedVerseNumbers.first
+    }
+
+    public func showCommentary(for verseNumber: Int? = nil) {
+        if let v = verseNumber {
+            selectSingleVerse(v)
+        }
+        activeInspectorTab = .commentary
+        isNotesInspectorPresented = true
+    }
+
+    public func showBookIntro() {
+        activeInspectorTab = .bookIntro
+        isNotesInspectorPresented = true
     }
 
     public func selectedVersesPlainText(versionId: String? = nil) -> String {

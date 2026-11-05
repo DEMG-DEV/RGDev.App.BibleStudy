@@ -14,8 +14,8 @@ public struct MainView: View {
         } detail: {
             ParallelReaderView(appState: appState)
                 .inspector(isPresented: $appState.isNotesInspectorPresented) {
-                    StudyNotesInspectorView(appState: appState)
-                        .inspectorColumnWidth(min: 280, ideal: 320, max: 400)
+                    UnifiedInspectorView(appState: appState)
+                        .inspectorColumnWidth(min: 280, ideal: 340, max: 420)
                 }
         }
         .preferredColorScheme(appState.currentTheme.colorScheme)
@@ -35,9 +35,26 @@ public struct MainView: View {
         )
         .background(
             Button("") {
-                appState.isNotesInspectorPresented.toggle()
+                if appState.isNotesInspectorPresented && appState.activeInspectorTab == .notes {
+                    appState.isNotesInspectorPresented = false
+                } else {
+                    appState.activeInspectorTab = .notes
+                    appState.isNotesInspectorPresented = true
+                }
             }
             .keyboardShortcut("n", modifiers: [.option, .command])
+            .opacity(0)
+        )
+        .background(
+            Button("") {
+                if appState.isNotesInspectorPresented && appState.activeInspectorTab == .commentary {
+                    appState.isNotesInspectorPresented = false
+                } else {
+                    appState.activeInspectorTab = .commentary
+                    appState.isNotesInspectorPresented = true
+                }
+            }
+            .keyboardShortcut("c", modifiers: [.option, .command])
             .opacity(0)
         )
         .background(
@@ -126,13 +143,33 @@ public struct MainView: View {
             }
             .help("Buscar cita o palabra (⌘K)")
 
+            // NTBT Commentary Inspector Toggle (⌥⌘C)
+            Button {
+                if appState.isNotesInspectorPresented && appState.activeInspectorTab == .commentary {
+                    appState.isNotesInspectorPresented = false
+                } else {
+                    appState.activeInspectorTab = .commentary
+                    appState.isNotesInspectorPresented = true
+                }
+            } label: {
+                Label("Comentarios NTBT", systemImage: "text.book.closed.fill")
+                    .foregroundColor(appState.isNotesInspectorPresented && appState.activeInspectorTab == .commentary ? .accentColor : .primary)
+            }
+            .help("Mostrar u ocultar comentarios de estudio NTBT (⌥⌘C)")
+
             // Notes Inspector Toggle (⌥⌘N)
             Button {
-                appState.isNotesInspectorPresented.toggle()
+                if appState.isNotesInspectorPresented && appState.activeInspectorTab == .notes {
+                    appState.isNotesInspectorPresented = false
+                } else {
+                    appState.activeInspectorTab = .notes
+                    appState.isNotesInspectorPresented = true
+                }
             } label: {
-                Label("Panel de Notas", systemImage: "sidebar.trailing")
+                Label("Mis Notas", systemImage: "note.text")
+                    .foregroundColor(appState.isNotesInspectorPresented && appState.activeInspectorTab == .notes ? .accentColor : .primary)
             }
-            .help("Mostrar u ocultar panel de notas (⌥⌘N)")
+            .help("Mostrar u ocultar notas de estudio personales (⌥⌘N)")
         }
     }
 

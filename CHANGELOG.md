@@ -6,6 +6,22 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/
 
 ---
 
+## [1.2.0] - 2026-11-05
+
+### Añadido
+- **Integración de la Nueva Traducción BibliaTodo (NTBT):**
+  - Incorporación del corpus bíblico completo de 31,104 versículos de la NTBT cortesía de *BibliaTodo Bible Society*.
+  - Palabras de Jesús en rojo (*Red Letter Edition*) con marcado `<wj>...</wj>` distinguiendo la narrativa del discurso directo de Cristo.
+  - Soporte completo en el Lector Paralelo y motor de búsqueda instantánea FTS5.
+- **Nuevo Panel Dedicado de Comentarios y Estudio:**
+  - Panel lateral unificado con pestañas segmentadas: *«📖 Comentarios NTBT»*, *«📝 Mis Notas»* y *«📜 Introducción»*.
+  - Exégesis versículo por versículo de toda la Escritura (31,104 comentarios enriquecidos con resumen, explicación detallada, análisis del texto original en griego/hebreo, pasajes relacionados y aplicación práctica).
+  - 66 introducciones canónicas e históricas por libro con contexto teológico y de autoría.
+  - Navegación rápida de versículos adyacentes (`←` / `→`) en el inspector.
+  - Acceso directo mediante atajo de teclado global `⌥⌘C`, botón en la barra de herramientas y menú contextual en el lector paralelo.
+
+---
+
 ## [1.1.1] - 2026-10-27
 
 ### Añadido

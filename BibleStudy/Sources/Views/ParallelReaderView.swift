@@ -162,6 +162,12 @@ public struct ParallelReaderView: View {
         }
         .contextMenu {
             Button {
+                appState.showCommentary(for: vnum)
+            } label: {
+                Label("Ver Comentarios NTBT (versículo \(vnum))", systemImage: "text.book.closed.fill")
+            }
+
+            Button {
                 appState.createNoteForCurrentSelection(verseNumber: isSelected ? nil : vnum)
             } label: {
                 Label(isSelected && appState.selectedVerseNumbers.count > 1 ? "Crear nota para versículos seleccionados" : "Crear nota para versículo \(vnum)", systemImage: "square.and.pencil")
@@ -279,6 +285,16 @@ public struct ParallelReaderView: View {
             .buttonStyle(.bordered)
             .controlSize(.small)
 
+            // Commentary button
+            Button {
+                appState.showCommentary()
+            } label: {
+                Label("Comentarios", systemImage: "text.book.closed.fill")
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+
             // Add Note button
             Button {
                 appState.createNoteForCurrentSelection()
@@ -368,6 +384,7 @@ public struct ParallelReaderView: View {
         case "NTV": return "Nueva Traducción Viviente"
         case "TLA": return "Traducción en Lenguaje Actual"
         case "NVI": return "Nueva Versión Internacional"
+        case "NTBT": return "Nueva Traducción BibliaTodo"
         default: return id
         }
     }

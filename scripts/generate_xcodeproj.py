@@ -27,6 +27,7 @@ def main():
         "BibleStudy/Sources/Models/BibleBook.swift",
         "BibleStudy/Sources/Models/BibleVerse.swift",
         "BibleStudy/Sources/Models/StudyNote.swift",
+        "BibleStudy/Sources/Models/NTBTCommentary.swift",
         "BibleStudy/Sources/Models/AppState.swift",
         "BibleStudy/Sources/Database/BibleDatabase.swift",
         "BibleStudy/Sources/Database/StudyNotesStore.swift",
@@ -37,11 +38,15 @@ def main():
         "BibleStudy/Sources/Views/ParallelReaderView.swift",
         "BibleStudy/Sources/Views/RedLetterText.swift",
         "BibleStudy/Sources/Views/OmniboxSearchView.swift",
-        "BibleStudy/Sources/Views/StudyNotesInspectorView.swift"
+        "BibleStudy/Sources/Views/StudyNotesInspectorView.swift",
+        "BibleStudy/Sources/Views/NTBTCommentaryInspectorView.swift",
+        "BibleStudy/Sources/Views/NTBTBookIntroInspectorView.swift",
+        "BibleStudy/Sources/Views/UnifiedInspectorView.swift"
     ]
 
     resources = [
         "BibleStudy/Sources/Resources/Bibles.sqlite",
+        "BibleStudy/Sources/Resources/NTBTCommentaries.sqlite",
         "BibleStudy/Sources/Resources/AppIcon.icns",
         "BibleStudy/Sources/Resources/Assets.xcassets"
     ]
@@ -303,7 +308,7 @@ def main():
     pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = NO;")
     pbx.append("\t\t\t\tINFOPLIST_FILE = \"BibleStudy/Info.plist\";")
     pbx.append("\t\t\t\tLD_RUNPATH_SEARCH_PATHS = \"$(inherited) @executable_path/../Frameworks\";")
-    pbx.append("\t\t\t\tMARKETING_VERSION = 1.1.1;")
+    pbx.append("\t\t\t\tMARKETING_VERSION = 1.2.0;")
     pbx.append("\t\t\t\tOTHER_LDFLAGS = (\"$(inherited)\", \"-lsqlite3\");")
     pbx.append("\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = com.rgdev.BibleStudy;")
     pbx.append("\t\t\t\tPRODUCT_NAME = \"$(TARGET_NAME)\";")
@@ -324,7 +329,7 @@ def main():
     pbx.append("\t\t\t\tGENERATE_INFOPLIST_FILE = NO;")
     pbx.append("\t\t\t\tINFOPLIST_FILE = \"BibleStudy/Info.plist\";")
     pbx.append("\t\t\t\tLD_RUNPATH_SEARCH_PATHS = \"$(inherited) @executable_path/../Frameworks\";")
-    pbx.append("\t\t\t\tMARKETING_VERSION = 1.1.1;")
+    pbx.append("\t\t\t\tMARKETING_VERSION = 1.2.0;")
     pbx.append("\t\t\t\tOTHER_LDFLAGS = (\"$(inherited)\", \"-lsqlite3\");")
     pbx.append("\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = com.rgdev.BibleStudy;")
     pbx.append("\t\t\t\tPRODUCT_NAME = \"$(TARGET_NAME)\";")

@@ -9,7 +9,7 @@ set -e
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_DIR"
 
-VERSION="1.1.1"
+VERSION="1.2.0"
 APP_NAME="BibleStudy"
 DMG_NAME="${APP_NAME}-${VERSION}-macOS.dmg"
 BUILD_DIR="${PROJECT_DIR}/build"

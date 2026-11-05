@@ -24,6 +24,7 @@ let package = Package(
             path: "BibleStudy/Sources",
             resources: [
                 .copy("Resources/Bibles.sqlite"),
+                .copy("Resources/NTBTCommentaries.sqlite"),
                 .copy("Resources/AppIcon.png"),
                 .copy("Resources/AppIcon.icns"),
                 .copy("Resources/Assets.xcassets")

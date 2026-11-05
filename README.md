@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest"><img src="https://img.shields.io/badge/Versi%C3%B3n-v1.1.1-blue.svg?style=flat-square" alt="Version"></a>
+  <a href="https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest"><img src="https://img.shields.io/badge/Versi%C3%B3n-v1.2.0-blue.svg?style=flat-square" alt="Version"></a>
   <img src="https://img.shields.io/badge/Plataforma-macOS%2014%20%7C%2015%2B%20(Sonoma%20%7C%20Sequoia)-black?style=flat-square&logo=apple" alt="macOS">
   <img src="https://img.shields.io/badge/Swift-6.0-F05138.svg?style=flat-square&logo=swift" alt="Swift 6">
   <img src="https://img.shields.io/badge/UI-SwiftUI%20%2B%20Apple%20HIG-5856D6.svg?style=flat-square" alt="SwiftUI">
@@ -40,41 +40,50 @@ Muchas aplicaciones bíblicas en el escritorio son portales web empaquetados en 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 1. Lector Paralelo Sincronizado Fila por Fila (RVR1960 / NTV / TLA / NVI)    │
-│ 2. Resaltado Gramatical Exacto: Palabras de Jesús (Red Letter Edition)      │
-│ 3. Sincronización Silenciosa en Segundo Plano con Notas de Apple (iCloud)   │
-│ 4. Selección Múltiple con HUD Flotante (⇧ Mayús + Clic / ⌘ Cmd + Clic)      │
-│ 5. Uñero Canónico de Biblia Física (Thumb Index) y Salto Rápido             │
-│ 6. Motor FTS5 Omnibox (⌘K) con Reconocimiento Inteligente de Citas          │
+│ 1. Lector Paralelo Sincronizado (RVR1960 / NTBT / NTV / NVI / TLA)          │
+│ 2. Panel Dedicado de Comentarios Exegéticos NTBT (31,104 notas + intros)    │
+│ 3. Resaltado Gramatical Exacto: Palabras de Jesús (Red Letter Edition)      │
+│ 4. Sincronización Silenciosa en Segundo Plano con Notas de Apple (iCloud)   │
+│ 5. Selección Múltiple con HUD Flotante (⇧ Mayús + Clic / ⌘ Cmd + Clic)      │
+│ 6. Uñero Canónico de Biblia Física (Thumb Index) y Salto Rápido             │
+│ 7. Motor FTS5 Omnibox (⌘K) con Reconocimiento Inteligente de Citas          │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1. 📖 Lector Paralelo Fila por Fila
-Compara hasta 4 versiones en columnas simultáneas sincronizadas horizontalmente versículo por versículo. Si una traducción utiliza equivalencia dinámica y fusiona cláusulas contiguas, el motor mantiene la alineación visual perfecta para que nunca pierdas el hilo del pasaje al desplazarte.
+Compara hasta 5 versiones en columnas simultáneas sincronizadas horizontalmente versículo por versículo. Si una traducción utiliza equivalencia dinámica y fusiona cláusulas contiguas, el motor mantiene la alineación visual perfecta para que nunca pierdas el hilo del pasaje al desplazarte.
 
-### 2. 🔴 Edición con Palabras de Jesús en Rojo (*Red Letter*)
+### 2. 🏛️ Panel Dedicado de Comentarios de Estudio NTBT (`⌥⌘C`)
+Integración oficial de la **Edición de Estudio de la Nueva Traducción BibliaTodo (NTBT)** en un panel inspector especializado:
+- **31,104 Notas Versículo a Versículo:** Explicación exegética, análisis del texto original en hebreo/arameo/griego, referencias cruzadas y aplicación pastoral.
+- **66 Introducciones Canónicas:** Panorama histórico, literario y teológico de cada libro de las Escrituras.
+- **Palabras de Jesús en Rojo:** Sincronizado con la edición *Red Letter* para identificar con exactitud los dichos del Señor.
+- **Acceso Inmediato:** Ábrelo con `⌥⌘C`, desde el menú contextual del versículo o mediante el botón en el HUD flotante.
+
+### 3. 🔴 Edición con Palabras de Jesús en Rojo (*Red Letter*)
 A diferencia de los visores convencionales que colorean oraciones completas, nuestro etiquetador gramatical separa estrictamente el relato del narrador de las declaraciones pronunciadas por Jesús:
 > *«Jesús le respondió y dijo:* <span style="color:#ff6b6b">«De cierto, de cierto te digo, que el que no naciere de nuevo, no puede ver el reino de Dios.»</span> *(Jn 3:3)*
 
 El color adopta tonalidades adaptativas: **carmesí real** en Modo Claro y **coral suave** en Modo Oscuro para garantizar confort visual durante horas de estudio prolongado.
 
-### 3. 🍏 Sincronización Automática con Notas de Apple (`Notes.app`)
+### 4. 🍏 Sincronización Automática con Notas de Apple (`Notes.app`)
 Cada vez que escribes una observación exegética o devocional, el puente en segundo plano (`AppleNotesBridge`) la replica automáticamente en la carpeta **«Estudio Bíblico»** de tu cuenta de **Notas de Apple**:
 - **Continuidad Total:** Escribe en tu Mac y consulta tus notas en tu iPhone o iPad vía iCloud al instante.
 - **Deduplicación Inteligente:** Utiliza identificadores internos persistentes (`x-coredata://...`) para actualizar la misma nota sin generar duplicados al editarla.
 - **Sin Bloqueo de UI:** AppleScript asíncrono sobre hilos de utilidad que no ralentiza la interfaz.
 
-### 4. 🎯 Selección Múltiple con Barra de Acción Flotante
+### 5. 🎯 Selección Múltiple con Barra de Acción Flotante
 - **Rangos continuos:** Haz clic en un versículo inicial y luego `⇧ Mayús + Clic` en el final para seleccionar pasajes enteros (ej. `1 Pedro 4:7-10`).
 - **Versículos alternos:** Pulsa `⌘ Cmd + Clic` en versículos específicos (ej. `Juan 3:16, 18, 20`).
-- **HUD Flotante:** Al seleccionar versículos, emerge una barra inferior con acciones directas para **Crear Nota** (con el texto pre-citado automáticamente), **Copiar Texto** o **Deseleccionar**.
+- **HUD Flotante:** Al seleccionar versículos, emerge una barra inferior con acciones directas para **Crear Nota** (con el texto pre-citado automáticamente), **Comentarios NTBT**, **Copiar Texto** o **Deseleccionar**.
 
 ---
 
-## 📚 Las 4 Versiones Bíblicas
+## 📚 Las 5 Versiones Bíblicas
 
 | Traducción | Nombre Completo | Tipo de Traducción | Enfoque Principal |
 | :--- | :--- | :--- | :--- |
+| **NTBT** | *Nueva Traducción BibliaTodo* | Equivalencia Formal / Dinámica | Fidelidad a los textos originales (WLC/OSHB y SBLGNT), español actual y notas de estudio completas. |
 | **RVR1960** | *Reina-Valera 1960* | Equivalencia Formal | Precisión verbal tradicional, memorización clásica y liturgia. |
 | **NTV** | *Nueva Traducción Viviente* | Equivalencia Dinámica | Claridad contemporánea, belleza poética y comprensión inmediata. |
 | **NVI** | *Nueva Versión Internacional* | Equivalencia Óptima | Rigor académico, equilibrio exegético moderno y lectura pública. |
@@ -87,7 +96,8 @@ Cada vez que escribes una observación exegética o devocional, el puente en seg
 | Atajo | Acción | Descripción |
 | :---: | :--- | :--- |
 | `⌘ K` | **Buscador Omnibox** | Salta a citas (`Jn 3:16`, `Sal 23`) o busca texto con FTS5 en milisegundos. |
-| `⌥ ⌘ N` | **Alternar Notas** | Abre o repliega el inspector cronológico lateral de notas de estudio. |
+| `⌥ ⌘ C` | **Comentarios NTBT** | Abre o repliega el panel de comentarios exegéticos versículo a versículo. |
+| `⌥ ⌘ N` | **Alternar Notas** | Abre o repliega el inspector de notas de estudio personales. |
 | `⌥ ⌘ T` | **Alternar Tema** | Cambia instantáneamente entre Modo Claro, Modo Oscuro y Automático. |
 | `⇧ + Clic` | **Rango de Versículos** | Selecciona un bloque continuo de versículos en el lector paralelo. |
 | `⌘ + Clic` | **Selección Discontinua** | Agrega o quita versículos individuales de la selección activa. |
@@ -99,7 +109,7 @@ Cada vez que escribes una observación exegética o devocional, el puente en seg
 
 ### Opción 1: Descargar el Instalador Oficial (.DMG)
 1. Descarga la versión más reciente desde [Releases](https://github.com/DEMG-DEV/RGDev.App.BibleStudy/releases/latest).
-2. Abre **`BibleStudy-1.1.1-macOS.dmg`**.
+2. Abre **`BibleStudy-1.2.0-macOS.dmg`**.
 3. Arrastra el icono de **BibleStudy** hacia la carpeta **Aplicaciones**.
 4. ¡Listo! La app está completamente optimizada para Apple Silicon (M1/M2/M3/M4) e Intel.
 
@@ -117,7 +127,7 @@ swift build -c release
 # 3. O crear el instalador .DMG completo con un solo comando:
 ./scripts/build_dmg.sh
 ```
-El archivo resultante se generará en `dist/BibleStudy-1.1.1-macOS.dmg`.
+El archivo resultante se generará en `dist/BibleStudy-1.2.0-macOS.dmg`.
 
 ---
 
@@ -149,6 +159,7 @@ El proyecto incluye dos flujos de trabajo automatizados listos para producción:
 
 ---
 
-## 📜 Licencia
+## 📜 Licencia y Atribución Editorial
 
-Distribuido bajo la Licencia **MIT**. Consulta [LICENSE](LICENSE) para más información. Desarrollado con dedicación por [DEMG-DEV](https://github.com/DEMG-DEV).
+- **Código y Aplicación:** Distribuido bajo la Licencia **MIT**. Consulta [LICENSE](LICENSE) para más información. Desarrollado con dedicación por [DEMG-DEV](https://github.com/DEMG-DEV).
+- **Atribución Bíblica NTBT:** *Santa Biblia, Nueva Traducción BibliaTodo (NTBT)*. Publicada por [BibliaTodo Bible Society](https://www.bibliatodo.com/ntbt/), sello editorial de BibliaTodo LLC. Reproducida con autorización gratuita y sin fines de lucro.

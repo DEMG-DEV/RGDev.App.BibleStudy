@@ -13,3 +13,8 @@ dist/
 # Temporary files
 *.swp
 *~
+*.zip
+
+# Raw Bible Data & Extraction Dirs
+NTBT/
+
